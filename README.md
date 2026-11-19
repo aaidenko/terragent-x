@@ -11,12 +11,21 @@ Cursor builds the factory: live USGS / NWS / NASA EONET ingest, multi-market pla
 
 ## What it does
 
-1. **Scout** pulls live public hazard / EO signals (flood gauges, NWS alerts, EONET wildfires/storms).
-2. **Analyst** writes verified briefs (gauge thresholds, wet-fraction / fire buffer heuristics, methods + limitations).
+1. **Scout** pulls live public hazard / EO signals (flood gauges, NWS alerts, EONET wildfires/storms) with per-feed failure isolation.
+2. **Analyst** runs a real **Sentinel-2 NDWI** water mask via Microsoft Planetary Computer (Python/rasterio), fuses it with live USGS/NWS hydro signals, and falls back cleanly when clouds/scenes fail. Wildfire path clusters open EONET incidents.
 3. **Matcher** attaches reachable businesses near the AOI.
 4. **Closer** drafts X + email outreach (approve to mark sent; optional demo auto-send).
 
-**Markets:** disasters (live), wildfire (live), deforestation (ready), mining (ready), private data brokerage (roadmap).
+**Markets:** disasters (live + NDWI), wildfire (live cluster), deforestation (ready), mining (ready), private data brokerage (roadmap).
+
+### EO pipeline
+
+```bash
+python3 -m pip install -r pipeline/requirements.txt
+python3 pipeline/analyze_aoi.py '{"lat":28.386,"lon":-80.742}'
+```
+
+Mission loop calls this automatically. `POST /api/eo` runs NDWI for an arbitrary lat/lon.
 
 ## Run locally
 

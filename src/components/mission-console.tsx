@@ -215,6 +215,17 @@ export function MissionConsole() {
                     confidence {Math.round(b.confidence * 100)}% ·{" "}
                     {b.method[0]}
                   </p>
+                  {b.metrics?.ndwi_water_fraction != null ? (
+                    <p className="mt-1 font-mono text-[11px] text-signal">
+                      NDWI water {(Number(b.metrics.ndwi_water_fraction) * 100).toFixed(2)}%
+                      {b.metrics.water_fraction_delta != null
+                        ? ` · Δ ${(Number(b.metrics.water_fraction_delta) * 100).toFixed(2)} pp`
+                        : ""}
+                      {b.metrics.sentinel_cloud_pct != null
+                        ? ` · cloud ${b.metrics.sentinel_cloud_pct}%`
+                        : ""}
+                    </p>
+                  ) : null}
                 </li>
               ))
             )}

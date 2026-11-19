@@ -1,8 +1,9 @@
 import { analyzeTopEvents } from "./analysis";
+import { analyzeAoiNdwi, type EoAnalysis } from "./eo";
 import { draftOutreach, matchProspects } from "./outreach";
 import { collectLiveSignals } from "./signals";
 import { getStore, upsertEvents } from "./store";
-import type { LoopRun } from "./types";
+import type { LoopRun, SignalEvent } from "./types";
 
 function uid(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
@@ -12,9 +13,22 @@ function step(name: string, detail: string) {
   return { name, detail, at: new Date().toISOString() };
 }
 
+function pickForImagery(events: SignalEvent[]): SignalEvent | null {
+  const withGauge = events.find(
+    (e) => e.market === "disasters" && e.metrics?.stageFt != null,
+  );
+  if (withGauge) return withGauge;
+  return (
+    events.find((e) => e.market === "disasters" && e.severity === "critical") ??
+    events.find((e) => e.market === "disasters") ??
+    null
+  );
+}
+
 export async function runOpsLoop(options?: {
   autoApprove?: boolean;
   maxEvents?: number;
+  skipImagery?: boolean;
 }): Promise<LoopRun> {
   const store = getStore();
   const run: LoopRun = {
@@ -38,9 +52,57 @@ export async function runOpsLoop(options?: {
       step("scout", `Ingested ${events.length} live events (flood, fire, storms)`),
     );
 
+    const eoByEventId: Record<string, EoAnalysis | null> = {};
+    if (!options?.skipImagery) {
+      const target = pickForImagery(events);
+      if (target) {
+        run.steps.push(
+          step(
+            "analyst",
+            `Running Sentinel-2 NDWI on AOI (${target.lat.toFixed(3)}, ${target.lon.toFixed(3)})`,
+          ),
+        );
+        const eo = await analyzeAoiNdwi({
+          lat: target.lat,
+          lon: target.lon,
+          pad_deg: 0.12,
+        });
+        // Attach the same AOI mask to nearby disaster events so NWS alerts
+        // in the same basin also get optical fusion in top briefs.
+        for (const event of events) {
+          if (event.market !== "disasters") continue;
+          const dlat = Math.abs(event.lat - target.lat);
+          const dlon = Math.abs(event.lon - target.lon);
+          if (event.id === target.id || (dlat < 0.6 && dlon < 0.6)) {
+            eoByEventId[event.id] = eo;
+          }
+        }
+        if (eo.ok && eo.recent) {
+          run.steps.push(
+            step(
+              "analyst",
+              `NDWI water ${(eo.recent.water_fraction * 100).toFixed(2)}% · scene ${eo.recent.scene_id.slice(0, 28)}… · cloud ${eo.recent.cloud_cover_pct.toFixed(1)}%`,
+            ),
+          );
+        } else {
+          run.steps.push(
+            step(
+              "analyst",
+              `Imagery fallback: ${eo.error ?? "no scene"} — continuing with gauge/alert fusion`,
+            ),
+          );
+        }
+      }
+    }
+
     const max = options?.maxEvents ?? 3;
-    run.steps.push(step("analyst", `Analyzing top ${max} events`));
-    const briefs = analyzeTopEvents(events, max);
+    run.steps.push(step("analyst", `Writing top ${max} fused briefs`));
+    // Pin the imagery target into the analysis set so the EO story always shows.
+    const pinned = pickForImagery(events);
+    const pool = pinned
+      ? [pinned, ...events.filter((e) => e.id !== pinned.id)]
+      : events;
+    const briefs = analyzeTopEvents(pool, max, eoByEventId);
     store.briefs.unshift(...briefs);
     store.briefs = store.briefs.slice(0, 40);
     run.briefIds = briefs.map((b) => b.id);

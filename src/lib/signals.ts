@@ -39,32 +39,41 @@ type UsgsIv = {
   };
 };
 
-/** St. Johns River near Cocoa — record flood hero site */
+/** St. Johns River near Cocoa (NWS COCF1 / hero flood site). */
 export async function fetchCocoaGauge(): Promise<SignalEvent | null> {
-  const url =
-    "https://waterservices.usgs.gov/nwis/iv/?format=json&sites=02232000&parameterCd=00065&siteStatus=all";
-  const data = await fetchJson<UsgsIv>(url);
-  const series = data?.value?.timeSeries?.[0];
-  const latest = series?.values?.[0]?.value?.at(-1);
-  if (!latest?.value) {
-    // Fallback snapshot from NWS reporting ~18.3 ft on 2026-11-19 if live gauge flaps
+  // Prefer AHPS/NWS observed stage JSON when available; USGS site IDs vary.
+  const ahps = await fetchJson<{
+    observed?: { primary?: Array<{ valid?: string; primary?: string }> };
+  }>("https://api.water.noaa.gov/nwps/v1/gauges/COCF1");
+
+  const obs = ahps?.observed?.primary?.at(-1);
+  const floodStageFt = 16.0;
+  const recordFt = 17.6;
+  const lat = 28.386;
+  const lon = -80.742;
+
+  if (obs?.primary != null && Number.isFinite(Number(obs.primary))) {
+    const stageFt = Number(obs.primary);
     return {
       id: "flood-cocoa-stjohns",
       market: "disasters",
-      title: "St. Johns River near Cocoa — major / record flood",
+      title: `St. Johns River near Cocoa — ${stageFt.toFixed(2)} ft`,
       summary:
-        "NWS Melbourne reports the St. Johns near Cocoa above the all-time flood of record (~17.6 ft), with water entering homes in Lake Poinsett, Silver Pines, and Shakespeare Park.",
-      lat: 28.386,
-      lon: -80.742,
-      severity: "critical",
-      source: "NWS / USGS (cached briefing)",
+        stageFt >= recordFt
+          ? `Live NWPS stage ${stageFt.toFixed(2)} ft exceeds the 17.6 ft all-time record. Major flooding impacts along the St. Johns in Brevard County (Lake Poinsett / Silver Pines / Shakespeare Park pattern).`
+          : `Live NWPS stage ${stageFt.toFixed(2)} ft vs flood stage ${floodStageFt} ft at COCF1.`,
+      lat,
+      lon,
+      severity: severityFromStage(stageFt, floodStageFt),
+      source: "NOAA NWPS COCF1",
       sourceUrl: "https://water.weather.gov/ahps2/hydrograph.php?wfo=mlb&gage=cocf1",
-      observedAt: new Date().toISOString(),
+      observedAt: obs.valid ?? new Date().toISOString(),
       metrics: {
-        stageFt: 18.3,
-        floodStageFt: 16.0,
-        recordFt: 17.6,
-        status: "major_flood_above_record",
+        stageFt: Number(stageFt.toFixed(2)),
+        floodStageFt,
+        recordFt,
+        aboveRecordFt: Number((stageFt - recordFt).toFixed(2)),
+        site: "COCF1",
       },
       xHints: [
         "Cocoa Florida flooding",
@@ -74,34 +83,59 @@ export async function fetchCocoaGauge(): Promise<SignalEvent | null> {
     };
   }
 
-  const stageFt = Number(latest.value);
-  const floodStageFt = 16.0;
-  const recordFt = 17.6;
-  const lat = series?.sourceInfo?.geoLocation?.geogLocation?.latitude ?? 28.386;
-  const lon = series?.sourceInfo?.geoLocation?.geogLocation?.longitude ?? -80.742;
+  // USGS fallback (secondary), then static briefing from NWS impact language
+  const url =
+    "https://waterservices.usgs.gov/nwis/iv/?format=json&sites=02232000&parameterCd=00065&siteStatus=all";
+  const data = await fetchJson<UsgsIv>(url);
+  const series = data?.value?.timeSeries?.[0];
+  const latest = series?.values?.[0]?.value?.at(-1);
+  if (latest?.value) {
+    const stageFt = Number(latest.value);
+    return {
+      id: "flood-cocoa-stjohns",
+      market: "disasters",
+      title: `${series?.sourceInfo?.siteName ?? "St. Johns near Cocoa"} — ${stageFt.toFixed(2)} ft`,
+      summary: `Live USGS stage ${stageFt.toFixed(2)} ft vs flood stage ${floodStageFt} ft.`,
+      lat: series?.sourceInfo?.geoLocation?.geogLocation?.latitude ?? lat,
+      lon: series?.sourceInfo?.geoLocation?.geogLocation?.longitude ?? lon,
+      severity: severityFromStage(stageFt, floodStageFt),
+      source: "USGS NWIS IV",
+      sourceUrl: url,
+      observedAt: latest.dateTime ?? new Date().toISOString(),
+      metrics: {
+        stageFt: Number(stageFt.toFixed(2)),
+        floodStageFt,
+        recordFt,
+        aboveRecordFt: Number((stageFt - recordFt).toFixed(2)),
+        site: series?.sourceInfo?.siteName ?? "02232000",
+      },
+      xHints: ["Cocoa Florida flooding", "St Johns River flood", "Brevard County flood"],
+    };
+  }
 
   return {
     id: "flood-cocoa-stjohns",
     market: "disasters",
-    title: `${series?.sourceInfo?.siteName ?? "St. Johns near Cocoa"} — ${stageFt.toFixed(2)} ft`,
+    title: "St. Johns River near Cocoa — major / record flood",
     summary:
-      stageFt >= recordFt
-        ? `Live USGS stage ${stageFt.toFixed(2)} ft exceeds the 17.6 ft record. Major flooding impacts along the St. Johns in Brevard County.`
-        : `Live USGS stage ${stageFt.toFixed(2)} ft vs flood stage ${floodStageFt} ft.`,
+      "NWS Melbourne reports the St. Johns near Cocoa above the all-time flood of record (~17.6 ft), with water entering homes in Lake Poinsett, Silver Pines, and Shakespeare Park.",
     lat,
     lon,
-    severity: severityFromStage(stageFt, floodStageFt),
-    source: "USGS NWIS IV",
-    sourceUrl: url,
-    observedAt: latest.dateTime ?? new Date().toISOString(),
+    severity: "critical",
+    source: "NWS / USGS (cached briefing)",
+    sourceUrl: "https://water.weather.gov/ahps2/hydrograph.php?wfo=mlb&gage=cocf1",
+    observedAt: new Date().toISOString(),
     metrics: {
-      stageFt: Number(stageFt.toFixed(2)),
+      stageFt: 18.3,
       floodStageFt,
       recordFt,
-      aboveRecordFt: Number((stageFt - recordFt).toFixed(2)),
-      site: series?.sourceInfo?.siteName ?? "02232000",
+      status: "major_flood_above_record",
     },
-    xHints: ["Cocoa Florida flooding", "St Johns River flood", "Brevard County flood"],
+    xHints: [
+      "Cocoa Florida flooding",
+      "St Johns River flood Brevard",
+      "Brevard EOC shelter",
+    ],
   };
 }
 
@@ -224,23 +258,29 @@ export async function fetchFloridaFloodAlerts(): Promise<SignalEvent[]> {
 }
 
 export async function collectLiveSignals(): Promise<SignalEvent[]> {
-  const [cocoa, eonet, nws] = await Promise.all([
+  const settled = await Promise.allSettled([
     fetchCocoaGauge(),
     fetchEonetEvents(),
     fetchFloridaFloodAlerts(),
   ]);
 
-  const events = [
-    ...(cocoa ? [cocoa] : []),
-    ...eonet,
-    ...nws,
-  ];
+  const cocoa = settled[0].status === "fulfilled" ? settled[0].value : null;
+  const eonet = settled[1].status === "fulfilled" ? settled[1].value : [];
+  const nws = settled[2].status === "fulfilled" ? settled[2].value : [];
 
-  // Deduplicate by id
-  const seen = new Set<string>();
-  return events.filter((e) => {
-    if (seen.has(e.id)) return false;
-    seen.add(e.id);
-    return true;
-  });
+  const events = [...(cocoa ? [cocoa] : []), ...eonet, ...nws];
+
+  // Deduplicate by id; prefer richer metric payloads
+  const byId = new Map<string, SignalEvent>();
+  for (const event of events) {
+    const prev = byId.get(event.id);
+    if (!prev) {
+      byId.set(event.id, event);
+      continue;
+    }
+    const prevScore = Object.keys(prev.metrics ?? {}).length;
+    const nextScore = Object.keys(event.metrics ?? {}).length;
+    if (nextScore >= prevScore) byId.set(event.id, event);
+  }
+  return [...byId.values()];
 }
