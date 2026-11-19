@@ -3,7 +3,14 @@
 import { useEffect, useState, useTransition } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { AnalysisBrief, LoopRun, OutreachDraft, Prospect, SignalEvent } from "@/lib/types";
+import type {
+  AnalysisBrief,
+  BroadcastDraft,
+  LoopRun,
+  OutreachDraft,
+  Prospect,
+  SignalEvent,
+} from "@/lib/types";
 import { PLAYBOOKS } from "@/lib/playbooks";
 
 type MissionState = {
@@ -11,6 +18,7 @@ type MissionState = {
   briefs: AnalysisBrief[];
   prospects: Prospect[];
   outreach: OutreachDraft[];
+  broadcasts: BroadcastDraft[];
   loops: LoopRun[];
 };
 
@@ -19,6 +27,7 @@ const empty: MissionState = {
   briefs: [],
   prospects: [],
   outreach: [],
+  broadcasts: [],
   loops: [],
 };
 
@@ -26,21 +35,34 @@ export function MissionConsole() {
   const [state, setState] = useState<MissionState>(empty);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-  const [autoApprove, setAutoApprove] = useState(false);
+  const [session, setSession] = useState<string | null>(null);
 
-  function applyPayload(data: MissionState & { ok?: boolean; error?: string }) {
+  function applyPayload(data: Partial<MissionState> & { ok?: boolean; error?: string }) {
     setState({
       events: data.events ?? [],
       briefs: data.briefs ?? [],
       prospects: data.prospects ?? [],
       outreach: data.outreach ?? [],
+      broadcasts: data.broadcasts ?? [],
       loops: data.loops ?? [],
     });
+  }
+
+  async function ensureSession(): Promise<string> {
+    if (session) return session;
+    const res = await fetch("/api/session", { method: "POST" });
+    const data = await res.json();
+    if (!res.ok || !data.session) {
+      throw new Error(data.error || "Could not start demo session");
+    }
+    setSession(data.session as string);
+    return data.session as string;
   }
 
   useEffect(() => {
     startTransition(async () => {
       try {
+        await ensureSession();
         const res = await fetch("/api/loop");
         const data = await res.json();
         applyPayload(data);
@@ -48,16 +70,21 @@ export function MissionConsole() {
         setError("Could not load mission state");
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function runLoop() {
     setError(null);
     startTransition(async () => {
       try {
+        const token = await ensureSession();
         const res = await fetch("/api/loop", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ autoApprove, maxEvents: 3 }),
+          headers: {
+            "Content-Type": "application/json",
+            "x-terragent-session": token,
+          },
+          body: JSON.stringify({ maxEvents: 3 }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Loop failed");
@@ -72,12 +99,17 @@ export function MissionConsole() {
     setError(null);
     startTransition(async () => {
       try {
+        const token = await ensureSession();
         const res = await fetch("/api/outreach", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-terragent-session": token,
+          },
           body: JSON.stringify({}),
         });
         const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Approve failed");
         applyPayload(data);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Approve failed");
@@ -85,9 +117,32 @@ export function MissionConsole() {
     });
   }
 
+  function approveBroadcasts() {
+    setError(null);
+    startTransition(async () => {
+      try {
+        const token = await ensureSession();
+        const res = await fetch("/api/broadcast", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-terragent-session": token,
+          },
+          body: JSON.stringify({}),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Broadcast approve failed");
+        applyPayload(data);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Broadcast approve failed");
+      }
+    });
+  }
+
   const latestLoop = state.loops[0];
   const drafts = state.outreach.filter((o) => o.status === "draft").length;
   const sent = state.outreach.filter((o) => o.status === "sent").length;
+  const broadcastDrafts = state.broadcasts.filter((o) => o.status === "draft").length;
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-5 pb-20 md:px-10">
@@ -105,15 +160,6 @@ export function MissionConsole() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <label className="flex items-center gap-2 font-mono text-xs text-muted-foreground">
-            <input
-              type="checkbox"
-              checked={autoApprove}
-              onChange={(e) => setAutoApprove(e.target.checked)}
-              className="accent-[var(--primary)]"
-            />
-            Demo auto-send
-          </label>
           <Button onClick={runLoop} disabled={pending} size="lg">
             {pending ? "Running…" : "Run ops loop"}
           </Button>
@@ -124,6 +170,14 @@ export function MissionConsole() {
             size="lg"
           >
             Approve {drafts || ""} drafts
+          </Button>
+          <Button
+            onClick={approveBroadcasts}
+            disabled={pending || broadcastDrafts === 0}
+            variant="outline"
+            size="lg"
+          >
+            Approve {broadcastDrafts || ""} @Terragent posts
           </Button>
         </div>
       </div>
@@ -217,7 +271,11 @@ export function MissionConsole() {
                   </p>
                   {b.metrics?.ndwi_water_fraction != null ? (
                     <p className="mt-1 font-mono text-[11px] text-signal">
-                      NDWI water {(Number(b.metrics.ndwi_water_fraction) * 100).toFixed(2)}%
+                      water {(Number(b.metrics.ndwi_water_fraction) * 100).toFixed(2)}%
+                      {b.metrics.eo_model ? ` · ${b.metrics.eo_model}` : ""}
+                      {b.metrics.mlp_train_acc != null
+                        ? ` · mlp ${(Number(b.metrics.mlp_train_acc) * 100).toFixed(0)}%`
+                        : ""}
                       {b.metrics.water_fraction_delta != null
                         ? ` · Δ ${(Number(b.metrics.water_fraction_delta) * 100).toFixed(2)} pp`
                         : ""}
@@ -272,6 +330,39 @@ export function MissionConsole() {
             ))}
           </ul>
         </div>
+      </section>
+
+      <section>
+        <h2 className="font-heading text-2xl font-semibold">
+          @Terragent broadcasts
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Public company posts — copy to X or have Grok Closer post after Approve.
+        </p>
+        <ul className="mt-4 space-y-3">
+          {state.broadcasts.length === 0 ? (
+            <li className="text-sm text-muted-foreground">
+              No broadcasts yet — run the loop.
+            </li>
+          ) : (
+            state.broadcasts.slice(0, 6).map((b) => (
+              <li key={b.id} className="border-t border-border/60 pt-3">
+                <div className="flex items-center gap-2">
+                  <Badge variant={b.status === "sent" ? "default" : "secondary"}>
+                    {b.status}
+                  </Badge>
+                  <span className="font-mono text-xs text-signal">{b.handle}</span>
+                  <span className="font-mono text-xs text-muted-foreground">
+                    {b.market}
+                  </span>
+                </div>
+                <p className="mt-1 text-sm text-muted-foreground whitespace-pre-wrap">
+                  {b.body}
+                </p>
+              </li>
+            ))
+          )}
+        </ul>
       </section>
 
       <section>

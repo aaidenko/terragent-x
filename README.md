@@ -12,7 +12,7 @@ Cursor builds the factory: live USGS / NWS / NASA EONET ingest, multi-market pla
 ## What it does
 
 1. **Scout** pulls live public hazard / EO signals (flood gauges, NWS alerts, EONET wildfires/storms) with per-feed failure isolation.
-2. **Analyst** runs a real **Sentinel-2 NDWI** water mask via Microsoft Planetary Computer (Python/rasterio), fuses it with live USGS/NWS hydro signals, and falls back cleanly when clouds/scenes fail. Wildfire path clusters open EONET incidents.
+2. **Analyst** runs a **Sentinel-2 EO stack** (SCL mask, NDWI+MNDWI, weakly-supervised numpy MLP water classifier) via Planetary Computer, fuses it with live hydro signals, and falls back cleanly when clouds/scenes fail. Also drafts **@Terragent** X broadcasts. Wildfire path clusters open EONET incidents.
 3. **Matcher** attaches reachable businesses near the AOI.
 4. **Closer** drafts X + email outreach (approve to mark sent; optional demo auto-send).
 

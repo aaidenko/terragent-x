@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
 import path from "node:path";
+import { releaseEoSlot, tryAcquireEoSlot } from "./security";
 
 export type EoAnalysis = {
   ok: boolean;
@@ -14,9 +15,21 @@ export type EoAnalysis = {
     ndwi_p90: number;
     water_fraction: number;
     valid_pixels: number;
-    threshold: number;
+    threshold_ndwi?: number;
+    threshold?: number;
     collection: string;
     source: string;
+    model?: string;
+    mlp?: {
+      trained?: boolean;
+      train_acc?: number;
+      hidden?: number;
+      epochs?: number;
+    };
+    mndwi_mean?: number;
+    clear_pixel_fraction?: number;
+    water_fraction_ndwi_only?: number;
+    bands?: string[];
   };
   baseline?: {
     scene_id: string;
@@ -24,6 +37,7 @@ export type EoAnalysis = {
     cloud_cover_pct: number;
     water_fraction: number;
     ndwi_mean: number;
+    model?: string;
   } | null;
   delta?: {
     water_fraction_delta: number;
@@ -36,13 +50,22 @@ export type EoAnalysis = {
 function runPython(argsJson: string, timeoutMs = 90000): Promise<EoAnalysis> {
   const script = path.join(process.cwd(), "pipeline", "analyze_aoi.py");
   return new Promise((resolve) => {
+    if (!tryAcquireEoSlot()) {
+      resolve({
+        ok: false,
+        error: "EO pipeline busy",
+        limitations: ["Another imagery job is running — try again shortly"],
+      });
+      return;
+    }
+
     const child = spawn("python3", [script, argsJson], {
       env: { ...process.env, PYTHONUNBUFFERED: "1" },
     });
     let stdout = "";
-    let stderr = "";
     const timer = setTimeout(() => {
       child.kill("SIGKILL");
+      releaseEoSlot();
       resolve({
         ok: false,
         error: "EO pipeline timed out",
@@ -53,18 +76,26 @@ function runPython(argsJson: string, timeoutMs = 90000): Promise<EoAnalysis> {
     child.stdout.on("data", (d) => {
       stdout += d.toString();
     });
-    child.stderr.on("data", (d) => {
-      stderr += d.toString();
-    });
+    // stderr intentionally discarded from client responses
+    child.stderr.on("data", () => {});
     child.on("close", () => {
       clearTimeout(timer);
+      releaseEoSlot();
       try {
         const line = stdout.trim().split("\n").filter(Boolean).at(-1) ?? "{}";
-        resolve(JSON.parse(line) as EoAnalysis);
+        const parsed = JSON.parse(line) as EoAnalysis & {
+          trace?: unknown;
+          error?: string;
+        };
+        delete parsed.trace;
+        if (!parsed.ok) {
+          parsed.error = "EO analysis unavailable";
+        }
+        resolve(parsed);
       } catch {
         resolve({
           ok: false,
-          error: stderr.slice(0, 400) || "Failed to parse EO pipeline output",
+          error: "EO analysis unavailable",
           limitations: ["EO parser failed — using non-imagery brief"],
         });
       }
@@ -77,5 +108,11 @@ export async function analyzeAoiNdwi(input: {
   lon: number;
   pad_deg?: number;
 }): Promise<EoAnalysis> {
-  return runPython(JSON.stringify(input));
+  return runPython(
+    JSON.stringify({
+      lat: input.lat,
+      lon: input.lon,
+      pad_deg: input.pad_deg ?? 0.12,
+    }),
+  );
 }

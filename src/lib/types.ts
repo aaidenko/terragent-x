@@ -53,6 +53,19 @@ export type OutreachDraft = {
   sentAt?: string;
 };
 
+/** Public @Terragent account posts (broadcast), not 1:1 cold outreach. */
+export type BroadcastDraft = {
+  id: string;
+  eventId: string;
+  market: MarketId;
+  channel: "x";
+  handle: "@Terragent";
+  body: string;
+  status: "draft" | "approved" | "sent";
+  createdAt: string;
+  sentAt?: string;
+};
+
 export type LoopRun = {
   id: string;
   startedAt: string;

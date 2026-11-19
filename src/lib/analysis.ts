@@ -64,11 +64,22 @@ export function analyzeEvent(
       metrics.sentinel_scene = eo.recent.scene_id;
       metrics.sentinel_cloud_pct = Number(eo.recent.cloud_cover_pct.toFixed(2));
       metrics.sentinel_datetime = eo.recent.datetime;
+      metrics.eo_model = eo.recent.model ?? "ndwi";
+      if (eo.recent.mlp?.train_acc != null) {
+        metrics.mlp_train_acc = eo.recent.mlp.train_acc;
+      }
+      if (eo.recent.mndwi_mean != null) {
+        metrics.mndwi_mean = Number(eo.recent.mndwi_mean.toFixed(4));
+      }
       if (eo.delta) {
         metrics.water_fraction_delta = Number(
           eo.delta.water_fraction_delta.toFixed(4),
         );
       }
+      const modelLabel =
+        eo.recent.model === "weakly_supervised_mlp"
+          ? `weakly-supervised MLP water classifier (train acc ${((eo.recent.mlp?.train_acc ?? 0) * 100).toFixed(1)}%)`
+          : "NDWI+MNDWI fusion";
       finding =
         (stage > 0
           ? `Live gauge ${stage.toFixed(2)} ft is ${(overFlood ?? 0).toFixed(2)} ft above flood stage` +
@@ -76,7 +87,7 @@ export function analyzeEvent(
               ? ` and ${overRecord.toFixed(2)} ft above the all-time record (${record} ft). `
               : ". ")
           : `${event.summary.slice(0, 180)} `) +
-        `Sentinel-2 NDWI on scene ${eo.recent.scene_id} (${eo.recent.datetime.slice(0, 10)}, cloud ${eo.recent.cloud_cover_pct.toFixed(1)}%) estimates water fraction ${(eo.recent.water_fraction * 100).toFixed(2)}% over the AOI` +
+        `Sentinel-2 scene ${eo.recent.scene_id} (${eo.recent.datetime.slice(0, 10)}, cloud ${eo.recent.cloud_cover_pct.toFixed(1)}%) with SCL masking + ${modelLabel} estimates clear-pixel water fraction ${(eo.recent.water_fraction * 100).toFixed(2)}%` +
         (eo.delta
           ? ` (Δ ${(eo.delta.water_fraction_delta * 100).toFixed(2)} pp vs prior-month baseline).`
           : ".") +

@@ -1,6 +1,6 @@
 import { analyzeTopEvents } from "./analysis";
 import { analyzeAoiNdwi, type EoAnalysis } from "./eo";
-import { draftOutreach, matchProspects } from "./outreach";
+import { draftBroadcast, draftOutreach, matchProspects } from "./outreach";
 import { collectLiveSignals } from "./signals";
 import { getStore, upsertEvents } from "./store";
 import type { LoopRun, SignalEvent } from "./types";
@@ -119,35 +119,32 @@ export async function runOpsLoop(options?: {
     run.prospectIds = prospects.map((p) => p.id);
     run.steps.push(step("matcher", `Matched ${prospects.length} prospects`));
 
-    run.steps.push(step("closer", "Drafting X + email outreach"));
+    run.steps.push(step("closer", "Drafting X + email outreach + @Terragent broadcasts"));
     const drafts = prospects.flatMap((prospect) => {
       const event = events.find((e) => e.id === prospect.eventId);
       const brief = briefs.find((b) => b.eventId === prospect.eventId);
       if (!event || !brief) return [];
       return [draftOutreach(event, brief, prospect)];
     });
+    const broadcasts = briefs.flatMap((brief) => {
+      const event = events.find((e) => e.id === brief.eventId);
+      if (!event) return [];
+      return [draftBroadcast(event, brief)];
+    });
 
-    if (options?.autoApprove) {
-      for (const d of drafts) {
-        d.status = "sent";
-        d.sentAt = new Date().toISOString();
-      }
-      run.steps.push(
-        step("closer", `Auto-sent ${drafts.length} messages (demo mode)`),
-      );
-      run.status = "complete";
-    } else {
-      run.steps.push(
-        step(
-          "closer",
-          `Queued ${drafts.length} drafts — awaiting human approval`,
-        ),
-      );
-      run.status = "awaiting_approval";
-    }
+    // Public deployment never auto-sends.
+    run.steps.push(
+      step(
+        "closer",
+        `Queued ${drafts.length} 1:1 drafts + ${broadcasts.length} @Terragent broadcast posts — awaiting approval`,
+      ),
+    );
+    run.status = "awaiting_approval";
 
     store.outreach.unshift(...drafts);
     store.outreach = store.outreach.slice(0, 80);
+    store.broadcasts.unshift(...broadcasts);
+    store.broadcasts = store.broadcasts.slice(0, 40);
     run.outreachIds = drafts.map((d) => d.id);
     run.finishedAt = new Date().toISOString();
   } catch (err) {
@@ -183,6 +180,19 @@ export function approveOutreach(ids?: string[]) {
   return targets;
 }
 
+export function approveBroadcasts(ids?: string[]) {
+  const store = getStore();
+  const targets = store.broadcasts.filter((o) =>
+    ids?.length ? ids.includes(o.id) : o.status === "draft",
+  );
+  const now = new Date().toISOString();
+  for (const draft of targets) {
+    draft.status = "sent";
+    draft.sentAt = now;
+  }
+  return targets;
+}
+
 export function getMissionState() {
   const store = getStore();
   return {
@@ -190,6 +200,7 @@ export function getMissionState() {
     briefs: store.briefs,
     prospects: store.prospects,
     outreach: store.outreach,
+    broadcasts: store.broadcasts,
     loops: store.loops.slice(0, 10),
   };
 }

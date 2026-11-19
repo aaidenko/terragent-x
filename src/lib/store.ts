@@ -1,5 +1,6 @@
 import type {
   AnalysisBrief,
+  BroadcastDraft,
   LoopRun,
   OutreachDraft,
   Prospect,
@@ -11,6 +12,7 @@ type Store = {
   briefs: AnalysisBrief[];
   prospects: Prospect[];
   outreach: OutreachDraft[];
+  broadcasts: BroadcastDraft[];
   loops: LoopRun[];
 };
 
@@ -22,6 +24,7 @@ function createStore(): Store {
     briefs: [],
     prospects: [],
     outreach: [],
+    broadcasts: [],
     loops: [],
   };
 }

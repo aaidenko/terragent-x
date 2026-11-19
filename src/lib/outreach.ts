@@ -1,4 +1,10 @@
-import type { AnalysisBrief, OutreachDraft, Prospect, SignalEvent } from "./types";
+import type {
+  AnalysisBrief,
+  BroadcastDraft,
+  OutreachDraft,
+  Prospect,
+  SignalEvent,
+} from "./types";
 
 function uid(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
@@ -102,6 +108,46 @@ export function draftOutreach(
     to: prospect.handleOrEmail,
     subject: `Verified ${brief.market} brief for ${prospect.name}`,
     body: `Hi — Terragent agents watch live public Earth data (NOAA/USGS/NASA) and turn it into asset-level answers.\n\nEvent: ${event.title}\nFinding: ${brief.finding}\n\nMethod: ${brief.method.join("; ")}\nConfidence: ${Math.round(brief.confidence * 100)}%\n\nIf useful, reply and we send the one-page PDF. No obligation.\n\n${disclosure}`,
+    status: "draft",
+    createdAt: new Date().toISOString(),
+  };
+}
+
+export function draftBroadcast(
+  event: SignalEvent,
+  brief: AnalysisBrief,
+): BroadcastDraft {
+  const stage = event.metrics?.stageFt;
+  const kind =
+    event.market === "wildfire"
+      ? "wildfire"
+      : event.market === "disasters"
+        ? "flood"
+        : "Earth event";
+  const placeHint =
+    event.market === "disasters"
+      ? "Brevard / St. Johns area"
+      : event.title.split(",")[0] ?? "your area";
+
+  const body =
+    kind === "flood"
+      ? `Were you affected by the ${placeHint} ${kind}?` +
+        (stage ? ` Live stage ~${stage} ft.` : "") +
+        ` Our agents fused NOAA gauges + Sentinel-2 water masks into a verified brief ("${brief.headline.slice(0, 70)}").` +
+        ` Property managers / businesses: reply DATA and we’ll send free analytics + imagery context.` +
+        ` AI-assisted · @Terragent`
+      : `Monitoring ${event.title}.` +
+        ` Satellite + open hazard feeds → asset-level brief ready.` +
+        ` If this hit your land, timber, or ops: reply DATA for a free Terragent pack.` +
+        ` AI-assisted · @Terragent`;
+
+  return {
+    id: uid("broadcast"),
+    eventId: event.id,
+    market: event.market,
+    channel: "x",
+    handle: "@Terragent",
+    body: body.slice(0, 400),
     status: "draft",
     createdAt: new Date().toISOString(),
   };
