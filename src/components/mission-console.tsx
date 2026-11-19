@@ -62,8 +62,10 @@ export function MissionConsole() {
   useEffect(() => {
     startTransition(async () => {
       try {
-        await ensureSession();
-        const res = await fetch("/api/loop");
+        const token = await ensureSession();
+        const res = await fetch("/api/loop", {
+          headers: { "x-terragent-session": token },
+        });
         const data = await res.json();
         applyPayload(data);
       } catch {

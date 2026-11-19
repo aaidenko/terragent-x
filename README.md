@@ -39,14 +39,26 @@ npm run dev
 npm run build && npm start -- -p 3847
 ```
 
+## Host configuration (required before Publish)
+
+| Env var | Required | Purpose |
+|---------|----------|---------|
+| `TERRAGENT_SESSION_SECRET` | **Yes** | HMAC key for demo session tokens. Random, at least 32 characters. There is no built-in fallback: if it is missing (and no host `CURSOR_APP_SECRET` of 32+ chars exists), `POST /api/session` returns 503 and every gated `POST` returns 401. |
+| `TRUSTED_PROXY_HOPS` | No (default `1`) | Number of trusted reverse proxies in front of the app. The rate-limit client IP is read that many entries from the **right** of `X-Forwarded-For`, so client-supplied values are ignored. Set `0` if no proxy sets the header (all callers then share one strict bucket). |
+
+Generate a secret locally with `openssl rand -hex 32` and paste it only into the host's secret settings, never into the repo or chat.
+
 ## API
 
 | Method | Path | Purpose |
 |--------|------|---------|
-| `GET` | `/api/signals` | Refresh live signals |
-| `GET` | `/api/loop` | Mission state |
-| `POST` | `/api/loop` | Run ops loop `{ autoApprove?, maxEvents? }` |
-| `POST` | `/api/outreach` | Approve drafts `{ ids? }` |
+| `GET` | `/api/signals` | Refresh live signals (rate-limited per client IP) |
+| `POST` | `/api/session` | Start a demo session (rate-limited; 503 if the host secret is unset) |
+| `GET` | `/api/loop` | Mission state: public events + **your session's** briefs, queues, loops |
+| `POST` | `/api/loop` | Run ops loop `{ maxEvents?, skipImagery? }` (session required) |
+| `POST` | `/api/outreach` | Approve **your session's** drafts `{ ids? }` (session required) |
+| `POST` | `/api/broadcast` | Approve **your session's** @Terragent broadcast drafts `{ ids? }` (session required) |
+| `POST` | `/api/eo` | NDWI for a lat/lon, `pad_deg` ≤ 0.15 (session required) |
 | `GET` | `/api/playbooks` | Market playbooks |
 
 ## Grok Bot setup

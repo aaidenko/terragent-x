@@ -19,8 +19,11 @@
 
 ## Public API guards
 
-- Demo session token required for `POST /api/loop`, `/api/eo`, `/api/outreach`
-- Per-IP rate limits + single-flight EO worker
+- Demo session token (HMAC, 1 h TTL) required for every `POST` (`/api/loop`, `/api/eo`, `/api/outreach`, `/api/broadcast`)
+- Session key comes only from host env `TERRAGENT_SESSION_SECRET` (≥ 32 chars; a host `CURSOR_APP_SECRET` is accepted as a domain-separated alternative). No hardcoded fallback: missing secret ⇒ sessions refused (fail closed)
+- Per-session state: briefs, prospects, outreach + broadcast approval queues, and loop runs are scoped to the session that created them; only public hazard events are shared
+- Per-IP rate limits on every route, including `GET /api/signals`; single-flight EO worker
+- Client IP for rate limits = `X-Forwarded-For` entry `TRUSTED_PROXY_HOPS` (default 1) from the right, so spoofed/prepended entries cannot mint new buckets
 - EO `pad_deg` capped at 0.15; lat/lon range-checked
 - Auto-send disabled on public loop; errors never return tracebacks/stderr
 

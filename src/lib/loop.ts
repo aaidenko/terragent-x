@@ -2,7 +2,12 @@ import { analyzeTopEvents } from "./analysis";
 import { analyzeAoiNdwi, type EoAnalysis } from "./eo";
 import { draftBroadcast, draftOutreach, matchProspects } from "./outreach";
 import { collectLiveSignals } from "./signals";
-import { getStore, upsertEvents } from "./store";
+import {
+  getEvents,
+  getSessionStore,
+  peekSessionStore,
+  upsertEvents,
+} from "./store";
 import type { LoopRun, SignalEvent } from "./types";
 
 function uid(prefix: string) {
@@ -25,12 +30,15 @@ function pickForImagery(events: SignalEvent[]): SignalEvent | null {
   );
 }
 
-export async function runOpsLoop(options?: {
-  autoApprove?: boolean;
-  maxEvents?: number;
-  skipImagery?: boolean;
-}): Promise<LoopRun> {
-  const store = getStore();
+export async function runOpsLoop(
+  sessionId: string,
+  options?: {
+    autoApprove?: boolean;
+    maxEvents?: number;
+    skipImagery?: boolean;
+  },
+): Promise<LoopRun> {
+  const store = getSessionStore(sessionId);
   const run: LoopRun = {
     id: uid("loop"),
     startedAt: new Date().toISOString(),
@@ -42,6 +50,7 @@ export async function runOpsLoop(options?: {
     outreachIds: [],
   };
   store.loops.unshift(run);
+  store.loops = store.loops.slice(0, 20);
 
   try {
     run.steps.push(step("scout", "Collecting live NWS / USGS / EONET signals"));
@@ -149,7 +158,9 @@ export async function runOpsLoop(options?: {
     run.finishedAt = new Date().toISOString();
   } catch (err) {
     run.status = "error";
-    run.error = err instanceof Error ? err.message : "Unknown loop error";
+    // Log detail server-side only; clients get a sanitized message.
+    console.error("[terragent] ops loop failed", err);
+    run.error = "Ops loop step failed";
     run.steps.push(step("error", run.error));
     run.finishedAt = new Date().toISOString();
   }
@@ -157,8 +168,8 @@ export async function runOpsLoop(options?: {
   return run;
 }
 
-export function approveOutreach(ids?: string[]) {
-  const store = getStore();
+export function approveOutreach(sessionId: string, ids?: string[]) {
+  const store = getSessionStore(sessionId);
   const targets = store.outreach.filter((o) =>
     ids?.length ? ids.includes(o.id) : o.status === "draft",
   );
@@ -180,8 +191,8 @@ export function approveOutreach(ids?: string[]) {
   return targets;
 }
 
-export function approveBroadcasts(ids?: string[]) {
-  const store = getStore();
+export function approveBroadcasts(sessionId: string, ids?: string[]) {
+  const store = getSessionStore(sessionId);
   const targets = store.broadcasts.filter((o) =>
     ids?.length ? ids.includes(o.id) : o.status === "draft",
   );
@@ -193,14 +204,19 @@ export function approveBroadcasts(ids?: string[]) {
   return targets;
 }
 
-export function getMissionState() {
-  const store = getStore();
+/**
+ * Mission state for one session. Live events are public/shared; briefs,
+ * prospects, drafts, broadcasts and loop runs are scoped to the session.
+ * Without a verified session only the public events are returned.
+ */
+export function getMissionState(sessionId: string | null) {
+  const store = sessionId ? peekSessionStore(sessionId) : null;
   return {
-    events: store.events,
-    briefs: store.briefs,
-    prospects: store.prospects,
-    outreach: store.outreach,
-    broadcasts: store.broadcasts,
-    loops: store.loops.slice(0, 10),
+    events: getEvents(),
+    briefs: store?.briefs ?? [],
+    prospects: store?.prospects ?? [],
+    outreach: store?.outreach ?? [],
+    broadcasts: store?.broadcasts ?? [],
+    loops: store?.loops.slice(0, 10) ?? [],
   };
 }

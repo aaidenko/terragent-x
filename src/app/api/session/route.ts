@@ -10,11 +10,20 @@ export async function POST(request: Request) {
       headers: { "Retry-After": String(limited.retryAfterSec) },
     });
   }
-  const token = issueSession(ip);
-  if (!token) {
+  const issued = issueSession(ip);
+  if (!issued.ok) {
+    if (issued.reason === "unconfigured") {
+      // Fail closed: no host secret means no sessions (and no gated POSTs).
+      console.error(
+        "[terragent] session secret not configured; set TERRAGENT_SESSION_SECRET",
+      );
+      return NextResponse.json(publicError("Sessions are unavailable"), {
+        status: 503,
+      });
+    }
     return NextResponse.json(publicError("Too many session requests"), {
       status: 429,
     });
   }
-  return NextResponse.json({ ok: true, session: token, expiresInSec: 3600 });
+  return NextResponse.json({ ok: true, session: issued.token, expiresInSec: 3600 });
 }

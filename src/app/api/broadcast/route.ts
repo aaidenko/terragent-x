@@ -4,12 +4,13 @@ import {
   clientIp,
   publicError,
   rateLimit,
-  requireSession,
+  sessionId,
 } from "@/lib/security";
 
 export async function POST(request: Request) {
   const ip = clientIp(request);
-  if (!requireSession(request)) {
+  const sid = sessionId(request);
+  if (!sid) {
     return NextResponse.json(publicError("Session required"), { status: 401 });
   }
   const limited = rateLimit(`broadcast:${ip}`, 10, 60_000);
@@ -23,11 +24,11 @@ export async function POST(request: Request) {
   const ids = Array.isArray(body.ids)
     ? body.ids.filter((id) => typeof id === "string").slice(0, 20)
     : undefined;
-  const sent = approveBroadcasts(ids);
+  const sent = approveBroadcasts(sid, ids);
   return NextResponse.json({
     ok: true,
     sentCount: sent.length,
     sent,
-    ...getMissionState(),
+    ...getMissionState(sid),
   });
 }
