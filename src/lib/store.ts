@@ -33,7 +33,15 @@ export function getStore(): Store {
   if (!globalForStore.__terragentStore) {
     globalForStore.__terragentStore = createStore();
   }
-  return globalForStore.__terragentStore;
+  const store = globalForStore.__terragentStore;
+  // migrate older in-memory shapes after hot reload
+  if (!Array.isArray(store.broadcasts)) store.broadcasts = [];
+  if (!Array.isArray(store.events)) store.events = [];
+  if (!Array.isArray(store.briefs)) store.briefs = [];
+  if (!Array.isArray(store.prospects)) store.prospects = [];
+  if (!Array.isArray(store.outreach)) store.outreach = [];
+  if (!Array.isArray(store.loops)) store.loops = [];
+  return store;
 }
 
 export function resetStore() {
