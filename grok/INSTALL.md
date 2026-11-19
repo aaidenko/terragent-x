@@ -7,17 +7,20 @@ I cannot create Grok Bots from the Cursor cloud VM. You install them in the **Gr
 1. Open **Grok Bot** on your computer.
 2. **New Bot** → name it `Terragent Setup`.
 3. Open `grok/PASTE-THIS-TO-GROK.md` in this repo and **paste the entire file** as the first message.
-4. Let Setup create the 5 bots + tell you plugins to connect.
+4. Let Setup create the 5 ops bots + tell you plugins to connect.
 5. Connect: **Cursor**, **X**, **Gmail** (as available).
-6. Open **Terragent CEO** and send:
+6. **Also create Terragent Engineer** — paste all of `grok/PASTE-ENGINEER-TO-GROK.md`. This bot replaces talking to Cursor chat for new features (it launches Cursor Cloud Agents).
+7. Open **Terragent CEO** and send:
 
 ```
-Remember TERRAGENT_BASE as whatever URL I give next. Save skill terragent-ops-loop from the install message. Then run one full loop with computer use. Draft only — do not send. Screenshot mission control.
+Remember TERRAGENT_BASE as https://terragentx.apps.grok.bot
+Save skill terragent-ops-loop. Run one full loop with computer use. Draft only — do not send.
+Add @Terragent Engineer to Terragent Company; route factory bugs to them.
 ```
-
-7. Paste your live app URL (from Cursor Publish / local `http://127.0.0.1:3847`).
 
 8. After one good run, ask CEO to create the **every 2 hours** routine (draft-only). Use **Test** for the hackathon video.
+
+9. From now on: talk to **Terragent Engineer** for code/EO upgrades; talk to **CEO** to run the company loop.
 
 ## What “computer use” means here
 
