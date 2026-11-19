@@ -2,7 +2,7 @@
 
 **Ask about any place on Earth, or we'll come to you with the answer.**
 
-Earth intelligence company for the Berkeley × Stanford Grok Bot Hackathon — **Most Technically Complex** track (public space / EO data → help people on the ground).
+An Earth intelligence company built for the Berkeley × Stanford Grok Bot Hackathon — **Most Technically Complex** track (public space / EO data → help people on the ground).
 
 Grok Bot runs the autonomous company (CEO + Scout + Analyst + Matcher + Closer).  
 Cursor builds the factory: live USGS / NWS / NASA EONET ingest, multi-market playbooks, mission control, outreach queue.
