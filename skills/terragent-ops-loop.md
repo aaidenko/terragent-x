@@ -4,19 +4,19 @@
 Human says "run the loop" / "run Terragent" / routine schedule / webhook from factory `analysis complete`.
 
 ## Required access
-- Web + X search
-- Terragent app URL (mission control) or local factory API
+- Grok Bot **computer** (browser): mission control, NWS, EONET, hydrographs, X, Gmail compose
+- Terragent base URL `TERRAGENT_BASE` (mission control)
 - Cursor Cloud Agent (Analyst only, when code/pipeline work needed)
-- Email / X send plugins only after approval
+- Email / X **send** only after approval
 
-## Sequence
-1. **Scout** — collect live signals; rank by severity + reachable buyers.
+## Sequence (computer use)
+1. **Scout** — on the Bot computer, open live feeds + X; rank by severity + reachable buyers.
 2. **Pick top 1–3** — prefer disasters/wildfire live playbooks.
-3. **Analyst** — produce briefs via factory (`POST /api/loop` or equivalent).
-4. **Matcher** — 2 prospects per brief minimum.
-5. **Closer** — draft X + email for each prospect.
+3. **Analyst** — open `{TERRAGENT_BASE}/mission`, click Run ops loop (or POST `/api/loop`); screenshot briefs; Cursor agent if broken.
+4. **Matcher** — browser + X search for ≥2 prospects per brief.
+5. **Closer** — draft X + email in compose UI; do not Send.
 6. **Stop for approval** unless demo auto-send.
-7. Log digest to human: event, brief, prospects, drafts, Approve Y/N.
+7. Digest to human with screenshots: event, brief, prospects, drafts, Approve Y/N.
 
 ## Validate
 - Every numeric claim cites a live source or states heuristic limitation.
