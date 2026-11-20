@@ -182,7 +182,7 @@ Paste `grok/PASTE-THIS-TO-GROK.md` into a new Grok Bot, or set up each profile i
 
 ## Team
 
-Aiden Ko · Thomas Wang
+Aiden Ko, Thomas Wang, Laurence Park, Aarush Tutiki
 
 ## Credits
 
