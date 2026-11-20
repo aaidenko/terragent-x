@@ -2,7 +2,7 @@
 
 **Live: [terragentx.apps.grok.bot](https://terragentx.apps.grok.bot/)** · Mission control: [terragentx.apps.grok.bot/mission](https://terragentx.apps.grok.bot/mission)
 
-> **Note for judges:** we're submitting **both a demo video and a live demo link**. The video shows the full capabilities end to end, including the Grok Bot agents operating mission control with computer use. The live link lets you test it yourself: open [mission control](https://terragentx.apps.grok.bot/mission), click **Run ops loop**, and open any signal to see its verified brief.
+> **Note for judges:** we're submitting **both a demo video and a live demo link**. The video shows the full capabilities end to end, including the Grok Bot agents operating mission control with computer use. The live link lets you see it yourself: open [mission control](https://terragentx.apps.grok.bot/mission)
 
 **Ask about any place on Earth, or we'll come to you with the answer.**
 
