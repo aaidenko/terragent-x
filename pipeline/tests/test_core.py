@@ -97,6 +97,7 @@ def test_new_water_excludes_reference_permanent_water():
     summary, _ = analyze.compute_scene(s, OFF, {"jrc_occurrence": occ, "worldcover": None})
     assert summary["reference"]["ref_fraction"] == pytest.approx(0.25)
     assert summary["reference"]["recall"] == 1.0
+    assert summary["reference"]["ref_pixels"] == 16 * 64
     assert summary["new_water_fraction"] == pytest.approx(0.25)
 
 
@@ -150,6 +151,8 @@ def test_confidence_high_when_everything_agrees():
     ({"method_agreement_iou": 0.1}, "low"),
     ({"method_agreement_iou": None}, "medium"),
     ({"reference": {"recall": 0.5, "ref_fraction": 0.3}}, "medium"),
+    ({"reference": {"recall": 0.01, "ref_fraction": 0.02, "ref_pixels": 225}}, "low"),
+    ({"reference": {"recall": 0.01, "ref_fraction": 0.001, "ref_pixels": 20}}, "high"),
 ])
 def test_confidence_downgrades(kw, level):
     assert confidence.assess(good_recent(**kw), BASE, reference_available=True, now=NOW)["level"] == level

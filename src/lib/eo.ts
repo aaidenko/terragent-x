@@ -2,6 +2,26 @@ import { spawn } from "node:child_process";
 import path from "node:path";
 import { releaseEoSlot, tryAcquireEoSlot } from "./security";
 
+export type EoConfidenceLevel = "low" | "medium" | "high";
+
+export type EoConfidence = { level: EoConfidenceLevel; reasons: string[] };
+
+export type EoFlood = {
+  new_water_fraction_recent: number;
+  new_water_fraction_baseline: number;
+  new_water_delta: number;
+  noise_floor: number;
+  significant: boolean;
+  definition?: string;
+};
+
+export type EoReferenceAgreement = {
+  ref_fraction: number | null;
+  precision: number | null;
+  recall: number | null;
+  iou: number | null;
+};
+
 export type EoAnalysis = {
   ok: boolean;
   error?: string;
@@ -29,6 +49,11 @@ export type EoAnalysis = {
     mndwi_mean?: number;
     clear_pixel_fraction?: number;
     water_fraction_ndwi_only?: number;
+    water_fraction_mndwi?: number;
+    water_fraction_mlp?: number | null;
+    method_agreement_iou?: number | null;
+    reference?: EoReferenceAgreement | null;
+    new_water_fraction?: number | null;
     bands?: string[];
   };
   baseline?: {
@@ -43,9 +68,17 @@ export type EoAnalysis = {
     water_fraction_delta: number;
     ndwi_mean_delta: number;
   } | null;
+  flood?: EoFlood | null;
+  confidence?: EoConfidence;
   method?: string[];
   limitations?: string[];
 };
+
+/** TERRAGENT_PYTHON lets the host point at a venv with pipeline/requirements.txt. */
+function pythonBin(): string {
+  const configured = process.env.TERRAGENT_PYTHON?.trim();
+  return configured && /^[\w./-]+$/.test(configured) ? configured : "python3";
+}
 
 function runPython(argsJson: string, timeoutMs = 90000): Promise<EoAnalysis> {
   const script = path.join(process.cwd(), "pipeline", "analyze_aoi.py");
@@ -59,7 +92,7 @@ function runPython(argsJson: string, timeoutMs = 90000): Promise<EoAnalysis> {
       return;
     }
 
-    const child = spawn("python3", [script, argsJson], {
+    const child = spawn(pythonBin(), [script, argsJson], {
       env: { ...process.env, PYTHONUNBUFFERED: "1" },
     });
     let stdout = "";

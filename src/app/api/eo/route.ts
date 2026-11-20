@@ -33,8 +33,19 @@ export async function POST(request: Request) {
     pad_deg: clamped.pad_deg,
   });
   // Strip any unexpected internals
-  const { ok, recent, baseline, delta, method, limitations, bbox, center, error } =
-    result;
+  const {
+    ok,
+    recent,
+    baseline,
+    delta,
+    flood,
+    confidence,
+    method,
+    limitations,
+    bbox,
+    center,
+    error,
+  } = result;
   return NextResponse.json({
     ok,
     result: {
@@ -42,6 +53,8 @@ export async function POST(request: Request) {
       recent,
       baseline,
       delta,
+      flood,
+      confidence,
       method,
       limitations,
       bbox,

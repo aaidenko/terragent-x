@@ -59,6 +59,7 @@ def compute_scene(bands: dict[str, np.ndarray], offset: int,
                 "precision": agr["precision"],
                 "recall": agr["recall"],
                 "iou": agr["iou"],
+                "ref_pixels": int((perm & clear).sum()),
             }
 
     ndwi_clear = nd[clear]

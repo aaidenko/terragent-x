@@ -69,8 +69,13 @@ def assess(
     rec = ref.get("recall")
     if not reference_available:
         cap(1, "Reference permanent-water layer unavailable; delta not separated from permanent water")
+    elif ref.get("ref_pixels") is not None and ref["ref_pixels"] < calibration.MIN_REFERENCE_PIXELS:
+        reasons.append("Too little reference permanent water in clear pixels to check mask recall")
     elif rec is not None:
-        if rec < calibration.MIN_REFERENCE_RECALL:
+        if rec < calibration.LOW_REFERENCE_RECALL:
+            cap(0, f"Mask recovers only {rec:.0%} of reference permanent water "
+                   "(vegetated wetland, haze or misregistration)")
+        elif rec < calibration.MIN_REFERENCE_RECALL:
             cap(1, f"Mask recovers only {rec:.0%} of reference permanent water")
         else:
             reasons.append(f"Mask recovers {rec:.0%} of reference permanent water")

@@ -3,7 +3,7 @@
 ## Why this is not “a chart on an API”
 
 1. **Live multi-feed ingest** with `Promise.allSettled` isolation (USGS NWIS, NWS alerts, NASA EONET). One feed dying does not kill the company loop.
-2. **Sentinel-2 EO factory** (`pipeline/analyze_aoi.py`): Planetary Computer STAC → SCL cloud/shadow mask → NDWI + MNDWI → **weakly-supervised 2-layer MLP** (numpy SGD on spectral features with NDWI/MNDWI weak labels) → baseline vs recent delta → explicit limitations.
+2. **Sentinel-2 EO factory** (`pipeline/terragent_eo/`, CLI `pipeline/analyze_aoi.py`): Planetary Computer STAC → BOA-offset-corrected reflectance → SCL cloud/shadow mask → **MNDWI water mask calibrated against JRC GSW + ESA WorldCover** (docs/EO-CALIBRATION.md) → weakly-supervised numpy MLP as an independent cross-check → **new water outside reference permanent water**, recent vs baseline, with a measured 1% noise floor → confidence level with reasons + explicit limitations.
 3. **Hydro + optical fusion** in briefs: live stage/record thresholds + NDWI metrics + confidence that drops when imagery falls back.
 4. **Wildfire clustering** across open EONET incidents (count, acres, centroid) for exposure briefs.
 5. **Agent OS** (Grok) orchestrates; Cursor owns the raster factory — same split as a real Earth-intel company.

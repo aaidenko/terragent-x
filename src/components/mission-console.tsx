@@ -286,6 +286,36 @@ export function MissionConsole() {
                         : ""}
                     </p>
                   ) : null}
+                  {b.eoConfidence ? (
+                    <div className="mt-2 text-[11px]">
+                      <p className="font-mono text-primary">
+                        imagery confidence {b.eoConfidence.level}
+                        {b.metrics?.new_water_delta != null
+                          ? ` · new water Δ ${(Number(b.metrics.new_water_delta) * 100).toFixed(2)} pp` +
+                            (b.metrics.new_water_significant === "no" ? " (within noise)" : "")
+                          : ""}
+                      </p>
+                      {b.eoConfidence.reasons.length ? (
+                        <ul className="mt-1 list-disc pl-4 text-muted-foreground">
+                          {b.eoConfidence.reasons.map((r) => (
+                            <li key={r}>{r}</li>
+                          ))}
+                        </ul>
+                      ) : null}
+                      {b.limitations.length ? (
+                        <details className="mt-1 text-muted-foreground">
+                          <summary className="cursor-pointer">
+                            limitations ({b.limitations.length})
+                          </summary>
+                          <ul className="mt-1 list-disc pl-4">
+                            {b.limitations.map((l) => (
+                              <li key={l}>{l}</li>
+                            ))}
+                          </ul>
+                        </details>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </li>
               ))
             )}

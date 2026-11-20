@@ -25,6 +25,8 @@ export type AnalysisBrief = {
   method: string[];
   metrics: Record<string, string | number>;
   limitations: string[];
+  /** EO quality assessment from the imagery pipeline, when imagery was used. */
+  eoConfidence?: { level: "low" | "medium" | "high"; reasons: string[] };
   createdAt: string;
   mapHint: { lat: number; lon: number; label: string };
 };

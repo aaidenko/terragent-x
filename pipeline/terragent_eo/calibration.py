@@ -59,6 +59,10 @@ MIN_METHOD_IOU = 0.6
 # Recall of reference permanent water below this means the scene is missing
 # water we know is there (haze, glint, turbidity, misregistration).
 MIN_REFERENCE_RECALL = 0.7
+# Below this recall the mask is missing most known water: low confidence.
+LOW_REFERENCE_RECALL = 0.3
+# Fewer clear reference-water pixels than this and recall is not meaningful.
+MIN_REFERENCE_PIXELS = 100
 
 
 def select_water_mask(

@@ -25,7 +25,18 @@ python3 -m pip install -r pipeline/requirements.txt
 python3 pipeline/analyze_aoi.py '{"lat":28.386,"lon":-80.742}'
 ```
 
-Mission loop calls this automatically. `POST /api/eo` runs NDWI for an arbitrary lat/lon.
+Mission loop calls this automatically. `POST /api/eo` runs the water analysis for an arbitrary lat/lon.
+
+Water mask = MNDWI > 0 on SCL-clear pixels (Sentinel-2 BOA offset applied), calibrated against JRC Global Surface Water and ESA WorldCover. Flood delta is new water outside reference permanent water. Every result carries `confidence {level, reasons}` and `limitations`. See [docs/EO-CALIBRATION.md](docs/EO-CALIBRATION.md); re-run with `python3 pipeline/calibrate.py`.
+
+## Checks
+
+```bash
+python3 -m pip install -r pipeline/requirements-dev.txt
+npm run check   # lint, typecheck, vitest API tests, pytest pipeline tests, build
+```
+
+`pytest --network` (or `TERRAGENT_NETWORK_TESTS=1`) adds a live Planetary Computer smoke test. CI (`.github/workflows/check.yml`) runs `npm run check` with no secrets.
 
 ## Run locally
 
@@ -44,6 +55,7 @@ npm run build && npm start -- -p 3847
 | Env var | Required | Purpose |
 |---------|----------|---------|
 | `TERRAGENT_SESSION_SECRET` | **Yes** | HMAC key for demo session tokens. Random, at least 32 characters. There is no built-in fallback: if it is missing (and no host `CURSOR_APP_SECRET` of 32+ chars exists), `POST /api/session` returns 503 and every gated `POST` returns 401. |
+| `TERRAGENT_PYTHON` | No (default `python3`) | Python interpreter for the EO pipeline; point it at a venv that has `pipeline/requirements.txt` installed. |
 | `TRUSTED_PROXY_HOPS` | No (default `1`) | Number of trusted reverse proxies in front of the app. The rate-limit client IP is read that many entries from the **right** of `X-Forwarded-For`, so client-supplied values are ignored. Set `0` if no proxy sets the header (all callers then share one strict bucket). |
 
 Generate a secret locally with `openssl rand -hex 32` and paste it only into the host's secret settings, never into the repo or chat.

@@ -1,4 +1,5 @@
 import type { EoAnalysis } from "./eo";
+import { applyEoQuality } from "./eo-brief";
 import { playbookById } from "./playbooks";
 import type { AnalysisBrief, SignalEvent } from "./types";
 
@@ -193,7 +194,10 @@ export function analyzeTopEvents(
     return rank[b.severity] + boost(b) - (rank[a.severity] + boost(a));
   });
   return ranked.slice(0, limit).map((event) =>
-    analyzeEvent(event, eoByEventId[event.id], fireCluster),
+    applyEoQuality(
+      analyzeEvent(event, eoByEventId[event.id], fireCluster),
+      eoByEventId[event.id],
+    ),
   );
 }
 
