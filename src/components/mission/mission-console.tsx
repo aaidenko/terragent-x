@@ -5,10 +5,16 @@ import { useMemo, useState } from "react";
 import { Arrow, ArrowRight, CropFrame } from "@/components/deck/glyphs";
 import { Display, Reveal } from "@/components/deck/motion";
 import { Brand, Glass, LiveDot, Mono, Panel, Pill, Strip } from "@/components/deck/primitives";
-import { LOOP_STATUS_LABEL, isApproximateLocation, readFeeds, relativeTime } from "@/components/format";
+import {
+  DRAFT_STATUS_LABEL,
+  LOOP_STATUS_LABEL,
+  MARKET_LABEL,
+  isApproximateLocation,
+  readFeeds,
+  relativeTime,
+} from "@/components/format";
 import { WorldMap, type MapMarker } from "@/components/map/world-map";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import {
   DraftCard,
   FeedHealth,
@@ -24,8 +30,8 @@ import { useMission, useNow } from "./use-mission";
 const SEVERITY_ORDER = { critical: 0, high: 1, medium: 2, low: 3 } as const;
 
 export function MissionConsole({ dots }: { dots: string }) {
-  const { state, loaded, error, running, approving, runLoop, approve, dismissError } = useMission();
-  const [autoApprove, setAutoApprove] = useState(false);
+  const { state, loaded, error, running, approving, runLoop, approve, approveBroadcasts, dismissError } =
+    useMission();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [showAllDrafts, setShowAllDrafts] = useState(false);
@@ -54,6 +60,7 @@ export function MissionConsole({ dots }: { dots: string }) {
   const briefIds = useMemo(() => new Set(state.briefs.map((b) => b.eventId)), [state.briefs]);
   const drafts = state.outreach.filter((o) => o.status === "draft");
   const sent = state.outreach.filter((o) => o.status === "sent").length;
+  const posts = state.broadcasts.filter((b) => b.status === "draft");
   const critical = state.events.filter((e) => e.severity === "critical").length;
 
   const markers: MapMarker[] = useMemo(
@@ -104,15 +111,16 @@ export function MissionConsole({ dots }: { dots: string }) {
 
             <div className="flex flex-col gap-7">
               <p className="max-w-[24rem] text-micro text-quiet">
-                One pass reads every feed, scores severity, writes verified briefs, matches the
-                people in the path and drafts outreach. Nothing is sent until you approve it.
+                One pass reads every feed, checks Sentinel-2 imagery, writes verified briefs,
+                matches the people in the path and drafts outreach. Nothing is sent until you
+                approve it.
               </p>
 
               <div className="flex flex-wrap items-center gap-3">
                 <Button
                   size="lg"
                   variant="solid"
-                  onClick={() => runLoop(autoApprove)}
+                  onClick={runLoop}
                   disabled={running}
                   aria-busy={running}
                 >
@@ -133,27 +141,19 @@ export function MissionConsole({ dots }: { dots: string }) {
                 </Button>
               </div>
 
-              <label className="group inline-flex w-fit cursor-pointer items-center gap-3 text-micro text-quiet select-none">
-                <input
-                  type="checkbox"
-                  checked={autoApprove}
-                  onChange={(e) => setAutoApprove(e.target.checked)}
-                  className="peer sr-only"
-                />
-                <span
-                  aria-hidden
-                  className="relative inline-flex h-4 w-7 items-center rounded-full border border-hair-strong transition-colors duration-200 peer-checked:border-paper/70 peer-checked:bg-white/10 peer-focus-visible:outline peer-focus-visible:outline-1 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-mist"
-                >
-                  <span
-                    className={cn(
-                      "absolute left-[3px] size-2 rounded-full bg-paper/60 transition-transform duration-300 ease-(--ease-deck)",
-                      autoApprove && "translate-x-3 bg-paper",
-                    )}
-                  />
-                </span>
-                Demo auto-send
-                <span className="text-faint">{autoApprove ? "on: drafts send immediately" : "off: drafts wait for you"}</span>
-              </label>
+              <Button
+                size="lg"
+                variant="quiet"
+                onClick={() => approveBroadcasts()}
+                disabled={running || posts.length === 0 || approving !== null}
+                className="link-draw h-auto w-fit py-1"
+              >
+                {approving === "broadcasts"
+                  ? "Posting…"
+                  : posts.length
+                    ? `Approve ${posts.length} @Terragent posts`
+                    : "No @Terragent posts waiting"}
+              </Button>
 
               {error ? (
                 <div role="alert" className="flex items-start justify-between gap-4 border-t border-hair pt-4">
@@ -212,7 +212,7 @@ export function MissionConsole({ dots }: { dots: string }) {
       </Panel>
 
       {!hasData && loaded ? (
-        <EmptyState onRun={() => runLoop(autoApprove)} running={running} />
+        <EmptyState onRun={runLoop} running={running} />
       ) : (
         <>
           {/* ───────────── Loop + feeds ───────────── */}
@@ -293,6 +293,50 @@ export function MissionConsole({ dots }: { dots: string }) {
                   method, and waits for your approval.
                 </p>
               </Glass>
+            )}
+          </Panel>
+
+          {/* ───────────── Broadcasts ───────────── */}
+          <Panel tone="ink" className="px-5 py-16 md:px-10 md:py-20">
+            <SectionHead
+              index={5}
+              title="Broadcasts"
+              aside={<Mono>{posts.length} waiting · public posts from the @Terragent account</Mono>}
+            />
+            {state.broadcasts.length ? (
+              <ul className="border-t border-hair">
+                {state.broadcasts.slice(0, 8).map((b) => (
+                  <li
+                    key={b.id}
+                    className="grid gap-x-8 gap-y-3 border-b border-hair py-6 md:grid-cols-[9rem_minmax(0,1fr)_auto] md:items-start"
+                  >
+                    <Mono className="text-paper/80">
+                      {b.handle}
+                      <span className="block text-faint">{MARKET_LABEL[b.market]}</span>
+                    </Mono>
+                    <p className="text-micro whitespace-pre-line text-paper/85">{b.body}</p>
+                    <div className="flex items-center gap-4 md:justify-end">
+                      <span className="text-micro text-quiet">{DRAFT_STATUS_LABEL[b.status]}</span>
+                      {b.status === "draft" ? (
+                        <Button
+                          variant="line"
+                          size="sm"
+                          disabled={approving !== null}
+                          onClick={() => approveBroadcasts([b.id])}
+                        >
+                          {approving === b.id ? "Posting…" : "Approve"}
+                          <ArrowRight />
+                        </Button>
+                      ) : null}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="border-t border-hair py-8 text-micro text-quiet">
+                Broadcast drafts appear after a pass. Each one is a short public update an agent
+                can post once you approve it.
+              </p>
             )}
           </Panel>
         </>

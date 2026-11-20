@@ -51,28 +51,30 @@ async function readFeeds(): Promise<SignalEvent[] | null> {
 }
 
 export async function getPulse(): Promise<Pulse> {
-  const state = getMissionState();
-  const lastLoop = state.loops.find((l) => l.status !== "running");
-  const sent = state.outreach.filter((o) => o.status === "sent").length;
-
-  if (lastLoop && lastLoop.eventIds.length) {
-    const ids = new Set(lastLoop.eventIds);
+  // Public view: events from the latest pass anyone ran; queues are per session.
+  const state = getMissionState(null);
+  if (state.events.length) {
+    const readAt = state.events
+      .map((e) => e.observedAt)
+      .filter(Boolean)
+      .sort()
+      .at(-1);
     return {
-      events: state.events.filter((e) => ids.has(e.id)),
-      briefs: state.briefs.length,
-      prospects: state.prospects.length,
-      sent,
+      events: state.events,
+      briefs: 0,
+      prospects: 0,
+      sent: 0,
       source: "loop",
-      readAt: lastLoop.finishedAt ?? lastLoop.startedAt,
+      readAt: readAt ?? new Date().toISOString(),
     };
   }
 
   const events = await readFeeds();
   return {
     events: events ?? [],
-    briefs: state.briefs.length,
-    prospects: state.prospects.length,
-    sent,
+    briefs: 0,
+    prospects: 0,
+    sent: 0,
     source: events ? "feeds" : "unavailable",
     readAt: new Date(memo.__txPulse?.at ?? Date.now()).toISOString(),
   };

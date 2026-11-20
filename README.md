@@ -2,6 +2,8 @@
 
 **Live: [terragentx.apps.grok.bot](https://terragentx.apps.grok.bot/)** · Mission control: [terragentx.apps.grok.bot/mission](https://terragentx.apps.grok.bot/mission)
 
+> **Note for judges:** we're submitting **both a demo video and a live demo link**. The video shows the full capabilities end to end, including the Grok Bot agents operating mission control with computer use. The live link lets you test it yourself: open [mission control](https://terragentx.apps.grok.bot/mission), click **Run ops loop**, and open any signal to see its verified brief.
+
 **Ask about any place on Earth, or we'll come to you with the answer.**
 
 TerragentX is an agent-run Earth intelligence company. It reads live public Earth-observation and hazard data, turns it into verified briefs, finds the people and businesses in the path, and drafts outreach that a human approves before anything is sent.
@@ -11,6 +13,7 @@ Built at the Berkeley × Stanford Grok Bot Hackathon for **Track 03, Most Techni
 | | |
 |---|---|
 | Live site | https://terragentx.apps.grok.bot/ |
+| Demo video | _link added at submission_ |
 | Presentation | Canva deck: https://www.canva.com/d/NnwCc2odxBce6zg |
 | Grok Bot session export | `grok/session-export/` (personal info removed) |
 | Repo | https://github.com/aaidenko/terragent-x |
