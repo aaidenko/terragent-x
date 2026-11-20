@@ -1,0 +1,1422 @@
+{
+  "generated_at": "2026-11-20T00:13:58+00:00",
+  "window": "2026-09-01/2026-10-31",
+  "pad_deg": 0.12,
+  "grid": "Sentinel-2 10 m bands resampled x10 (~100 m pixels)",
+  "reference_primary": "JRC Global Surface Water v1.3 occurrence >= 50% (jrc-gsw)",
+  "reference_secondary": "ESA WorldCover 2021 class 80 permanent water (esa-worldcover)",
+  "aois": [
+    {
+      "name": "Cape Canaveral / Indian River lagoon (coastal)",
+      "lat": 28.386,
+      "lon": -80.742,
+      "ok": true,
+      "bbox": [
+        -80.86200000000001,
+        28.266,
+        -80.622,
+        28.506
+      ],
+      "scene_id": "S2C_MSIL2A_20260926T160511_R054_T17RNM_20260926T204208",
+      "scene_datetime": "2026-09-26T16:05:11.025000Z",
+      "scene_cloud_pct": 10.600036,
+      "processing_baseline": "05.13",
+      "boa_offset_dn": 1000,
+      "reference_items": [
+        "jrc-gsw:90W_30Nv1_3_2020",
+        "esa-worldcover:ESA_WorldCover_10m_2021_v200_N27W081"
+      ],
+      "clear_pixel_fraction": 0.4401,
+      "valid_pixels": 27508,
+      "ref_water_fraction_jrc": 0.4474,
+      "ref_water_fraction_worldcover": 0.4813,
+      "mlp_v1_meta": {
+        "trained": true,
+        "hidden": 8,
+        "epochs": 60,
+        "train_acc": 0.9838,
+        "train_pos": 800,
+        "train_neg": 800,
+        "prob_threshold": 0.55
+      },
+      "mlp_v2_meta": {
+        "trained": true,
+        "hidden": 8,
+        "epochs": 60,
+        "train_acc": 0.9994,
+        "train_pos": 800,
+        "train_neg": 800,
+        "prob_threshold": 0.55
+      },
+      "weak_pos_v1_fraction": 0.1,
+      "weak_pos_v2_fraction": 0.3778,
+      "scores": {
+        "mlp_v1_legacy": {
+          "jrc_occ>=50": {
+            "valid_pixels": 27508,
+            "pred_fraction": 0.4485,
+            "ref_fraction": 0.4474,
+            "precision": 0.9613,
+            "recall": 0.9635,
+            "iou": 0.9276,
+            "outside_ref_fraction": 0.0173
+          },
+          "worldcover_80": {
+            "valid_pixels": 27508,
+            "pred_fraction": 0.4485,
+            "ref_fraction": 0.4813,
+            "precision": 0.9865,
+            "recall": 0.9192,
+            "iou": 0.9077,
+            "outside_ref_fraction": 0.0061
+          }
+        },
+        "mlp_v2": {
+          "jrc_occ>=50": {
+            "valid_pixels": 27508,
+            "pred_fraction": 0.4176,
+            "ref_fraction": 0.4474,
+            "precision": 0.993,
+            "recall": 0.9267,
+            "iou": 0.9207,
+            "outside_ref_fraction": 0.0029
+          },
+          "worldcover_80": {
+            "valid_pixels": 27508,
+            "pred_fraction": 0.4176,
+            "ref_fraction": 0.4813,
+            "precision": 0.9993,
+            "recall": 0.867,
+            "iou": 0.8665,
+            "outside_ref_fraction": 0.0003
+          }
+        },
+        "v1_ndwi>0.15_no_offset": {
+          "jrc_occ>=50": {
+            "valid_pixels": 27508,
+            "pred_fraction": 0.0147,
+            "ref_fraction": 0.4474,
+            "precision": 0.9506,
+            "recall": 0.0313,
+            "iou": 0.0312,
+            "outside_ref_fraction": 0.0007
+          },
+          "worldcover_80": {
+            "valid_pixels": 27508,
+            "pred_fraction": 0.0147,
+            "ref_fraction": 0.4813,
+            "precision": 1.0,
+            "recall": 0.0306,
+            "iou": 0.0306,
+            "outside_ref_fraction": 0.0
+          }
+        },
+        "ndwi>0.15": {
+          "jrc_occ>=50": {
+            "valid_pixels": 27508,
+            "pred_fraction": 0.3899,
+            "ref_fraction": 0.4474,
+            "precision": 0.9971,
+            "recall": 0.8688,
+            "iou": 0.8666,
+            "outside_ref_fraction": 0.0011
+          },
+          "worldcover_80": {
+            "valid_pixels": 27508,
+            "pred_fraction": 0.3899,
+            "ref_fraction": 0.4813,
+            "precision": 0.9999,
+            "recall": 0.81,
+            "iou": 0.8099,
+            "outside_ref_fraction": 0.0
+          }
+        },
+        "ndwi>0": {
+          "jrc_occ>=50": {
+            "valid_pixels": 27508,
+            "pred_fraction": 0.4174,
+            "ref_fraction": 0.4474,
+            "precision": 0.9948,
+            "recall": 0.9281,
+            "iou": 0.9236,
+            "outside_ref_fraction": 0.0022
+          },
+          "worldcover_80": {
+            "valid_pixels": 27508,
+            "pred_fraction": 0.4174,
+            "ref_fraction": 0.4813,
+            "precision": 0.9987,
+            "recall": 0.8662,
+            "iou": 0.8652,
+            "outside_ref_fraction": 0.0005
+          }
+        },
+        "mndwi>0": {
+          "jrc_occ>=50": {
+            "valid_pixels": 27508,
+            "pred_fraction": 0.4173,
+            "ref_fraction": 0.4474,
+            "precision": 0.9899,
+            "recall": 0.9231,
+            "iou": 0.9145,
+            "outside_ref_fraction": 0.0042
+          },
+          "worldcover_80": {
+            "valid_pixels": 27508,
+            "pred_fraction": 0.4173,
+            "ref_fraction": 0.4813,
+            "precision": 0.9961,
+            "recall": 0.8636,
+            "iou": 0.8607,
+            "outside_ref_fraction": 0.0016
+          }
+        },
+        "mndwi>0.1": {
+          "jrc_occ>=50": {
+            "valid_pixels": 27508,
+            "pred_fraction": 0.3958,
+            "ref_fraction": 0.4474,
+            "precision": 0.9955,
+            "recall": 0.8807,
+            "iou": 0.8772,
+            "outside_ref_fraction": 0.0018
+          },
+          "worldcover_80": {
+            "valid_pixels": 27508,
+            "pred_fraction": 0.3958,
+            "ref_fraction": 0.4813,
+            "precision": 0.9995,
+            "recall": 0.8221,
+            "iou": 0.8218,
+            "outside_ref_fraction": 0.0002
+          }
+        },
+        "ndwi>0.15&mndwi>0": {
+          "jrc_occ>=50": {
+            "valid_pixels": 27508,
+            "pred_fraction": 0.3873,
+            "ref_fraction": 0.4474,
+            "precision": 0.9973,
+            "recall": 0.8633,
+            "iou": 0.8612,
+            "outside_ref_fraction": 0.0011
+          },
+          "worldcover_80": {
+            "valid_pixels": 27508,
+            "pred_fraction": 0.3873,
+            "ref_fraction": 0.4813,
+            "precision": 0.9999,
+            "recall": 0.8047,
+            "iou": 0.8046,
+            "outside_ref_fraction": 0.0
+          }
+        },
+        "mndwi>0&ndwi>0": {
+          "jrc_occ>=50": {
+            "valid_pixels": 27508,
+            "pred_fraction": 0.4057,
+            "ref_fraction": 0.4474,
+            "precision": 0.9961,
+            "recall": 0.9032,
+            "iou": 0.9001,
+            "outside_ref_fraction": 0.0016
+          },
+          "worldcover_80": {
+            "valid_pixels": 27508,
+            "pred_fraction": 0.4057,
+            "ref_fraction": 0.4813,
+            "precision": 0.9992,
+            "recall": 0.8423,
+            "iou": 0.8417,
+            "outside_ref_fraction": 0.0003
+          }
+        },
+        "mndwi>0&ndwi>-0.1": {
+          "jrc_occ>=50": {
+            "valid_pixels": 27508,
+            "pred_fraction": 0.4108,
+            "ref_fraction": 0.4474,
+            "precision": 0.9926,
+            "recall": 0.9114,
+            "iou": 0.9052,
+            "outside_ref_fraction": 0.0031
+          },
+          "worldcover_80": {
+            "valid_pixels": 27508,
+            "pred_fraction": 0.4108,
+            "ref_fraction": 0.4813,
+            "precision": 0.9964,
+            "recall": 0.8505,
+            "iou": 0.8479,
+            "outside_ref_fraction": 0.0015
+          }
+        },
+        "mndwi>0&ndvi<0.1": {
+          "jrc_occ>=50": {
+            "valid_pixels": 27508,
+            "pred_fraction": 0.4057,
+            "ref_fraction": 0.4474,
+            "precision": 0.9935,
+            "recall": 0.9009,
+            "iou": 0.8956,
+            "outside_ref_fraction": 0.0027
+          },
+          "worldcover_80": {
+            "valid_pixels": 27508,
+            "pred_fraction": 0.4057,
+            "ref_fraction": 0.4813,
+            "precision": 0.9963,
+            "recall": 0.8399,
+            "iou": 0.8373,
+            "outside_ref_fraction": 0.0015
+          }
+        }
+      },
+      "iou_sweep_vs_jrc": {
+        "ndwi": {
+          "-0.2": 0.9219,
+          "-0.1": 0.94,
+          "-0.05": 0.9352,
+          "0.0": 0.9236,
+          "0.05": 0.9068,
+          "0.1": 0.8865,
+          "0.15": 0.8666,
+          "0.2": 0.8533,
+          "0.3": 0.8291
+        },
+        "mndwi": {
+          "-0.2": 0.8869,
+          "-0.1": 0.9374,
+          "-0.05": 0.9328,
+          "0.0": 0.9145,
+          "0.05": 0.8956,
+          "0.1": 0.8772,
+          "0.15": 0.8597,
+          "0.2": 0.8451,
+          "0.3": 0.8038
+        }
+      }
+    },
+    {
+      "name": "St. Johns River floodplain, Lake Poinsett FL (river floodplain)",
+      "lat": 28.34,
+      "lon": -80.93,
+      "ok": true,
+      "bbox": [
+        -81.05000000000001,
+        28.22,
+        -80.81,
+        28.46
+      ],
+      "scene_id": "S2B_MSIL2A_20261014T160219_R097_T17RNM_20261014T195430",
+      "scene_datetime": "2026-10-14T16:02:19.024000Z",
+      "scene_cloud_pct": 11.862488,
+      "processing_baseline": "05.13",
+      "boa_offset_dn": 1000,
+      "reference_items": [
+        "jrc-gsw:90W_30Nv1_3_2020",
+        "esa-worldcover:ESA_WorldCover_10m_2021_v200_N27W084",
+        "esa-worldcover:ESA_WorldCover_10m_2021_v200_N27W081"
+      ],
+      "clear_pixel_fraction": 0.6365,
+      "valid_pixels": 31493,
+      "ref_water_fraction_jrc": 0.0705,
+      "ref_water_fraction_worldcover": 0.0788,
+      "mlp_v1_meta": {
+        "trained": true,
+        "hidden": 8,
+        "epochs": 60,
+        "train_acc": 0.9009,
+        "train_pos": 88,
+        "train_neg": 800,
+        "prob_threshold": 0.55
+      },
+      "mlp_v2_meta": {
+        "trained": true,
+        "hidden": 8,
+        "epochs": 60,
+        "train_acc": 0.9981,
+        "train_pos": 800,
+        "train_neg": 800,
+        "prob_threshold": 0.55
+      },
+      "weak_pos_v1_fraction": 0.0028,
+      "weak_pos_v2_fraction": 0.0563,
+      "scores": {
+        "mlp_v1_legacy": {
+          "jrc_occ>=50": {
+            "valid_pixels": 31493,
+            "pred_fraction": 0.0,
+            "ref_fraction": 0.0705,
+            "precision": null,
+            "recall": 0.0,
+            "iou": 0.0,
+            "outside_ref_fraction": 0.0
+          },
+          "worldcover_80": {
+            "valid_pixels": 31493,
+            "pred_fraction": 0.0,
+            "ref_fraction": 0.0788,
+            "precision": null,
+            "recall": 0.0,
+            "iou": 0.0,
+            "outside_ref_fraction": 0.0
+          }
+        },
+        "mlp_v2": {
+          "jrc_occ>=50": {
+            "valid_pixels": 31493,
+            "pred_fraction": 0.0714,
+            "ref_fraction": 0.0705,
+            "precision": 0.908,
+            "recall": 0.9198,
+            "iou": 0.8414,
+            "outside_ref_fraction": 0.0066
+          },
+          "worldcover_80": {
+            "valid_pixels": 31493,
+            "pred_fraction": 0.0714,
+            "ref_fraction": 0.0788,
+            "precision": 0.9382,
+            "recall": 0.8505,
+            "iou": 0.8053,
+            "outside_ref_fraction": 0.0044
+          }
+        },
+        "v1_ndwi>0.15_no_offset": {
+          "jrc_occ>=50": {
+            "valid_pixels": 31493,
+            "pred_fraction": 0.0003,
+            "ref_fraction": 0.0705,
+            "precision": 0.2222,
+            "recall": 0.0009,
+            "iou": 0.0009,
+            "outside_ref_fraction": 0.0002
+          },
+          "worldcover_80": {
+            "valid_pixels": 31493,
+            "pred_fraction": 0.0003,
+            "ref_fraction": 0.0788,
+            "precision": 0.6667,
+            "recall": 0.0024,
+            "iou": 0.0024,
+            "outside_ref_fraction": 0.0001
+          }
+        },
+        "ndwi>0.15": {
+          "jrc_occ>=50": {
+            "valid_pixels": 31493,
+            "pred_fraction": 0.058,
+            "ref_fraction": 0.0705,
+            "precision": 0.9743,
+            "recall": 0.8018,
+            "iou": 0.7852,
+            "outside_ref_fraction": 0.0015
+          },
+          "worldcover_80": {
+            "valid_pixels": 31493,
+            "pred_fraction": 0.058,
+            "ref_fraction": 0.0788,
+            "precision": 0.9885,
+            "recall": 0.7279,
+            "iou": 0.7218,
+            "outside_ref_fraction": 0.0007
+          }
+        },
+        "ndwi>0": {
+          "jrc_occ>=50": {
+            "valid_pixels": 31493,
+            "pred_fraction": 0.0613,
+            "ref_fraction": 0.0705,
+            "precision": 0.9699,
+            "recall": 0.8428,
+            "iou": 0.8213,
+            "outside_ref_fraction": 0.0018
+          },
+          "worldcover_80": {
+            "valid_pixels": 31493,
+            "pred_fraction": 0.0613,
+            "ref_fraction": 0.0788,
+            "precision": 0.9844,
+            "recall": 0.7654,
+            "iou": 0.7563,
+            "outside_ref_fraction": 0.001
+          }
+        },
+        "mndwi>0": {
+          "jrc_occ>=50": {
+            "valid_pixels": 31493,
+            "pred_fraction": 0.0644,
+            "ref_fraction": 0.0705,
+            "precision": 0.9443,
+            "recall": 0.8626,
+            "iou": 0.8208,
+            "outside_ref_fraction": 0.0036
+          },
+          "worldcover_80": {
+            "valid_pixels": 31493,
+            "pred_fraction": 0.0644,
+            "ref_fraction": 0.0788,
+            "precision": 0.9635,
+            "recall": 0.7876,
+            "iou": 0.7648,
+            "outside_ref_fraction": 0.0023
+          }
+        },
+        "mndwi>0.1": {
+          "jrc_occ>=50": {
+            "valid_pixels": 31493,
+            "pred_fraction": 0.0604,
+            "ref_fraction": 0.0705,
+            "precision": 0.9685,
+            "recall": 0.8302,
+            "iou": 0.8083,
+            "outside_ref_fraction": 0.0019
+          },
+          "worldcover_80": {
+            "valid_pixels": 31493,
+            "pred_fraction": 0.0604,
+            "ref_fraction": 0.0788,
+            "precision": 0.9811,
+            "recall": 0.7525,
+            "iou": 0.7418,
+            "outside_ref_fraction": 0.0011
+          }
+        },
+        "ndwi>0.15&mndwi>0": {
+          "jrc_occ>=50": {
+            "valid_pixels": 31493,
+            "pred_fraction": 0.0574,
+            "ref_fraction": 0.0705,
+            "precision": 0.9751,
+            "recall": 0.7941,
+            "iou": 0.7784,
+            "outside_ref_fraction": 0.0014
+          },
+          "worldcover_80": {
+            "valid_pixels": 31493,
+            "pred_fraction": 0.0574,
+            "ref_fraction": 0.0788,
+            "precision": 0.9889,
+            "recall": 0.7207,
+            "iou": 0.7149,
+            "outside_ref_fraction": 0.0006
+          }
+        },
+        "mndwi>0&ndwi>0": {
+          "jrc_occ>=50": {
+            "valid_pixels": 31493,
+            "pred_fraction": 0.0599,
+            "ref_fraction": 0.0705,
+            "precision": 0.9714,
+            "recall": 0.8252,
+            "iou": 0.8056,
+            "outside_ref_fraction": 0.0017
+          },
+          "worldcover_80": {
+            "valid_pixels": 31493,
+            "pred_fraction": 0.0599,
+            "ref_fraction": 0.0788,
+            "precision": 0.9857,
+            "recall": 0.7493,
+            "iou": 0.7412,
+            "outside_ref_fraction": 0.0009
+          }
+        },
+        "mndwi>0&ndwi>-0.1": {
+          "jrc_occ>=50": {
+            "valid_pixels": 31493,
+            "pred_fraction": 0.0614,
+            "ref_fraction": 0.0705,
+            "precision": 0.9659,
+            "recall": 0.8414,
+            "iou": 0.8171,
+            "outside_ref_fraction": 0.0021
+          },
+          "worldcover_80": {
+            "valid_pixels": 31493,
+            "pred_fraction": 0.0614,
+            "ref_fraction": 0.0788,
+            "precision": 0.9783,
+            "recall": 0.7626,
+            "iou": 0.7499,
+            "outside_ref_fraction": 0.0013
+          }
+        },
+        "mndwi>0&ndvi<0.1": {
+          "jrc_occ>=50": {
+            "valid_pixels": 31493,
+            "pred_fraction": 0.0559,
+            "ref_fraction": 0.0705,
+            "precision": 0.971,
+            "recall": 0.7703,
+            "iou": 0.753,
+            "outside_ref_fraction": 0.0016
+          },
+          "worldcover_80": {
+            "valid_pixels": 31493,
+            "pred_fraction": 0.0559,
+            "ref_fraction": 0.0788,
+            "precision": 0.9841,
+            "recall": 0.6985,
+            "iou": 0.6907,
+            "outside_ref_fraction": 0.0009
+          }
+        }
+      },
+      "iou_sweep_vs_jrc": {
+        "ndwi": {
+          "-0.2": 0.8582,
+          "-0.1": 0.8561,
+          "-0.05": 0.8432,
+          "0.0": 0.8213,
+          "0.05": 0.8102,
+          "0.1": 0.8013,
+          "0.15": 0.7852,
+          "0.2": 0.7676,
+          "0.3": 0.7149
+        },
+        "mndwi": {
+          "-0.2": 0.7385,
+          "-0.1": 0.8216,
+          "-0.05": 0.8354,
+          "0.0": 0.8208,
+          "0.05": 0.8134,
+          "0.1": 0.8083,
+          "0.15": 0.792,
+          "0.2": 0.7723,
+          "0.3": 0.7199
+        }
+      }
+    },
+    {
+      "name": "Mississippi River floodplain near Vicksburg MS (river floodplain)",
+      "lat": 32.35,
+      "lon": -90.92,
+      "ok": true,
+      "bbox": [
+        -91.04,
+        32.230000000000004,
+        -90.8,
+        32.47
+      ],
+      "scene_id": "S2C_MSIL2A_20261011T164221_R126_T15SYS_20261011T200203",
+      "scene_datetime": "2026-10-11T16:42:21.025000Z",
+      "scene_cloud_pct": 0.000591,
+      "processing_baseline": "05.13",
+      "boa_offset_dn": 1000,
+      "reference_items": [
+        "jrc-gsw:100W_40Nv1_3_2020",
+        "esa-worldcover:ESA_WorldCover_10m_2021_v200_N30W093"
+      ],
+      "clear_pixel_fraction": 0.9916,
+      "valid_pixels": 3185,
+      "ref_water_fraction_jrc": 0.0188,
+      "ref_water_fraction_worldcover": 0.0396,
+      "mlp_v1_meta": {
+        "trained": true,
+        "hidden": 8,
+        "epochs": 60,
+        "train_acc": 0.9031,
+        "train_pos": 160,
+        "train_neg": 800,
+        "prob_threshold": 0.55
+      },
+      "mlp_v2_meta": {
+        "trained": false,
+        "reason": "insufficient weak labels",
+        "pos": 10,
+        "neg": 3126
+      },
+      "weak_pos_v1_fraction": 0.0502,
+      "weak_pos_v2_fraction": 0.0031,
+      "scores": {
+        "mlp_v1_legacy": {
+          "jrc_occ>=50": {
+            "valid_pixels": 3185,
+            "pred_fraction": 0.022,
+            "ref_fraction": 0.0188,
+            "precision": 0.6286,
+            "recall": 0.7333,
+            "iou": 0.5116,
+            "outside_ref_fraction": 0.0082
+          },
+          "worldcover_80": {
+            "valid_pixels": 3185,
+            "pred_fraction": 0.022,
+            "ref_fraction": 0.0396,
+            "precision": 0.9143,
+            "recall": 0.5079,
+            "iou": 0.4848,
+            "outside_ref_fraction": 0.0019
+          }
+        },
+        "v1_ndwi>0.15_no_offset": {
+          "jrc_occ>=50": {
+            "valid_pixels": 3185,
+            "pred_fraction": 0.0,
+            "ref_fraction": 0.0188,
+            "precision": null,
+            "recall": 0.0,
+            "iou": 0.0,
+            "outside_ref_fraction": 0.0
+          },
+          "worldcover_80": {
+            "valid_pixels": 3185,
+            "pred_fraction": 0.0,
+            "ref_fraction": 0.0396,
+            "precision": null,
+            "recall": 0.0,
+            "iou": 0.0,
+            "outside_ref_fraction": 0.0
+          }
+        },
+        "ndwi>0.15": {
+          "jrc_occ>=50": {
+            "valid_pixels": 3185,
+            "pred_fraction": 0.0016,
+            "ref_fraction": 0.0188,
+            "precision": 0.6,
+            "recall": 0.05,
+            "iou": 0.0484,
+            "outside_ref_fraction": 0.0006
+          },
+          "worldcover_80": {
+            "valid_pixels": 3185,
+            "pred_fraction": 0.0016,
+            "ref_fraction": 0.0396,
+            "precision": 1.0,
+            "recall": 0.0397,
+            "iou": 0.0397,
+            "outside_ref_fraction": 0.0
+          }
+        },
+        "ndwi>0": {
+          "jrc_occ>=50": {
+            "valid_pixels": 3185,
+            "pred_fraction": 0.0047,
+            "ref_fraction": 0.0188,
+            "precision": 0.6667,
+            "recall": 0.1667,
+            "iou": 0.1538,
+            "outside_ref_fraction": 0.0016
+          },
+          "worldcover_80": {
+            "valid_pixels": 3185,
+            "pred_fraction": 0.0047,
+            "ref_fraction": 0.0396,
+            "precision": 1.0,
+            "recall": 0.119,
+            "iou": 0.119,
+            "outside_ref_fraction": 0.0
+          }
+        },
+        "mndwi>0": {
+          "jrc_occ>=50": {
+            "valid_pixels": 3185,
+            "pred_fraction": 0.0126,
+            "ref_fraction": 0.0188,
+            "precision": 0.8,
+            "recall": 0.5333,
+            "iou": 0.4706,
+            "outside_ref_fraction": 0.0025
+          },
+          "worldcover_80": {
+            "valid_pixels": 3185,
+            "pred_fraction": 0.0126,
+            "ref_fraction": 0.0396,
+            "precision": 1.0,
+            "recall": 0.3175,
+            "iou": 0.3175,
+            "outside_ref_fraction": 0.0
+          }
+        },
+        "mndwi>0.1": {
+          "jrc_occ>=50": {
+            "valid_pixels": 3185,
+            "pred_fraction": 0.0097,
+            "ref_fraction": 0.0188,
+            "precision": 0.7742,
+            "recall": 0.4,
+            "iou": 0.3582,
+            "outside_ref_fraction": 0.0022
+          },
+          "worldcover_80": {
+            "valid_pixels": 3185,
+            "pred_fraction": 0.0097,
+            "ref_fraction": 0.0396,
+            "precision": 1.0,
+            "recall": 0.246,
+            "iou": 0.246,
+            "outside_ref_fraction": 0.0
+          }
+        },
+        "ndwi>0.15&mndwi>0": {
+          "jrc_occ>=50": {
+            "valid_pixels": 3185,
+            "pred_fraction": 0.0016,
+            "ref_fraction": 0.0188,
+            "precision": 0.6,
+            "recall": 0.05,
+            "iou": 0.0484,
+            "outside_ref_fraction": 0.0006
+          },
+          "worldcover_80": {
+            "valid_pixels": 3185,
+            "pred_fraction": 0.0016,
+            "ref_fraction": 0.0396,
+            "precision": 1.0,
+            "recall": 0.0397,
+            "iou": 0.0397,
+            "outside_ref_fraction": 0.0
+          }
+        },
+        "mndwi>0&ndwi>0": {
+          "jrc_occ>=50": {
+            "valid_pixels": 3185,
+            "pred_fraction": 0.0038,
+            "ref_fraction": 0.0188,
+            "precision": 0.75,
+            "recall": 0.15,
+            "iou": 0.1429,
+            "outside_ref_fraction": 0.0009
+          },
+          "worldcover_80": {
+            "valid_pixels": 3185,
+            "pred_fraction": 0.0038,
+            "ref_fraction": 0.0396,
+            "precision": 1.0,
+            "recall": 0.0952,
+            "iou": 0.0952,
+            "outside_ref_fraction": 0.0
+          }
+        },
+        "mndwi>0&ndwi>-0.1": {
+          "jrc_occ>=50": {
+            "valid_pixels": 3185,
+            "pred_fraction": 0.0082,
+            "ref_fraction": 0.0188,
+            "precision": 0.7692,
+            "recall": 0.3333,
+            "iou": 0.303,
+            "outside_ref_fraction": 0.0019
+          },
+          "worldcover_80": {
+            "valid_pixels": 3185,
+            "pred_fraction": 0.0082,
+            "ref_fraction": 0.0396,
+            "precision": 1.0,
+            "recall": 0.2063,
+            "iou": 0.2063,
+            "outside_ref_fraction": 0.0
+          }
+        },
+        "mndwi>0&ndvi<0.1": {
+          "jrc_occ>=50": {
+            "valid_pixels": 3185,
+            "pred_fraction": 0.0035,
+            "ref_fraction": 0.0188,
+            "precision": 0.8182,
+            "recall": 0.15,
+            "iou": 0.1452,
+            "outside_ref_fraction": 0.0006
+          },
+          "worldcover_80": {
+            "valid_pixels": 3185,
+            "pred_fraction": 0.0035,
+            "ref_fraction": 0.0396,
+            "precision": 1.0,
+            "recall": 0.0873,
+            "iou": 0.0873,
+            "outside_ref_fraction": 0.0
+          }
+        }
+      },
+      "iou_sweep_vs_jrc": {
+        "ndwi": {
+          "-0.2": 0.4167,
+          "-0.1": 0.3043,
+          "-0.05": 0.209,
+          "0.0": 0.1538,
+          "0.05": 0.0806,
+          "0.1": 0.0645,
+          "0.15": 0.0484,
+          "0.2": 0.0484,
+          "0.3": 0.0333
+        },
+        "mndwi": {
+          "-0.2": 0.5301,
+          "-0.1": 0.5135,
+          "-0.05": 0.5139,
+          "0.0": 0.4706,
+          "0.05": 0.4118,
+          "0.1": 0.3582,
+          "0.15": 0.2812,
+          "0.2": 0.2031,
+          "0.3": 0.0968
+        }
+      }
+    },
+    {
+      "name": "Lake Tahoe shoreline CA/NV (inland lake)",
+      "lat": 39.17,
+      "lon": -120.05,
+      "ok": true,
+      "bbox": [
+        -120.17,
+        39.050000000000004,
+        -119.92999999999999,
+        39.29
+      ],
+      "scene_id": "S2B_MSIL2A_20261015T185349_R113_T11SKD_20261015T221625",
+      "scene_datetime": "2026-10-15T18:53:49.024000Z",
+      "scene_cloud_pct": 0.016746,
+      "processing_baseline": "05.13",
+      "boa_offset_dn": 1000,
+      "reference_items": [
+        "jrc-gsw:130W_40Nv1_3_2020",
+        "jrc-gsw:120W_40Nv1_3_2020",
+        "esa-worldcover:ESA_WorldCover_10m_2021_v200_N39W123",
+        "esa-worldcover:ESA_WorldCover_10m_2021_v200_N39W120"
+      ],
+      "clear_pixel_fraction": 0.9997,
+      "valid_pixels": 58950,
+      "ref_water_fraction_jrc": 0.5838,
+      "ref_water_fraction_worldcover": 0.5862,
+      "mlp_v1_meta": {
+        "trained": true,
+        "hidden": 8,
+        "epochs": 60,
+        "train_acc": 0.9994,
+        "train_pos": 800,
+        "train_neg": 800,
+        "prob_threshold": 0.55
+      },
+      "mlp_v2_meta": {
+        "trained": true,
+        "hidden": 8,
+        "epochs": 60,
+        "train_acc": 1.0,
+        "train_pos": 800,
+        "train_neg": 800,
+        "prob_threshold": 0.55
+      },
+      "weak_pos_v1_fraction": 0.0333,
+      "weak_pos_v2_fraction": 0.5787,
+      "scores": {
+        "mlp_v1_legacy": {
+          "jrc_occ>=50": {
+            "valid_pixels": 58950,
+            "pred_fraction": 0.5845,
+            "ref_fraction": 0.5838,
+            "precision": 0.9977,
+            "recall": 0.999,
+            "iou": 0.9967,
+            "outside_ref_fraction": 0.0014
+          },
+          "worldcover_80": {
+            "valid_pixels": 58950,
+            "pred_fraction": 0.5845,
+            "ref_fraction": 0.5862,
+            "precision": 0.9995,
+            "recall": 0.9967,
+            "iou": 0.9962,
+            "outside_ref_fraction": 0.0003
+          }
+        },
+        "mlp_v2": {
+          "jrc_occ>=50": {
+            "valid_pixels": 58950,
+            "pred_fraction": 0.5816,
+            "ref_fraction": 0.5838,
+            "precision": 0.9996,
+            "recall": 0.9959,
+            "iou": 0.9955,
+            "outside_ref_fraction": 0.0002
+          },
+          "worldcover_80": {
+            "valid_pixels": 58950,
+            "pred_fraction": 0.5816,
+            "ref_fraction": 0.5862,
+            "precision": 1.0,
+            "recall": 0.9922,
+            "iou": 0.9922,
+            "outside_ref_fraction": 0.0
+          }
+        },
+        "v1_ndwi>0.15_no_offset": {
+          "jrc_occ>=50": {
+            "valid_pixels": 58950,
+            "pred_fraction": 0.0021,
+            "ref_fraction": 0.5838,
+            "precision": 1.0,
+            "recall": 0.0036,
+            "iou": 0.0036,
+            "outside_ref_fraction": 0.0
+          },
+          "worldcover_80": {
+            "valid_pixels": 58950,
+            "pred_fraction": 0.0021,
+            "ref_fraction": 0.5862,
+            "precision": 1.0,
+            "recall": 0.0036,
+            "iou": 0.0036,
+            "outside_ref_fraction": 0.0
+          }
+        },
+        "ndwi>0.15": {
+          "jrc_occ>=50": {
+            "valid_pixels": 58950,
+            "pred_fraction": 0.5795,
+            "ref_fraction": 0.5838,
+            "precision": 0.9999,
+            "recall": 0.9926,
+            "iou": 0.9924,
+            "outside_ref_fraction": 0.0001
+          },
+          "worldcover_80": {
+            "valid_pixels": 58950,
+            "pred_fraction": 0.5795,
+            "ref_fraction": 0.5862,
+            "precision": 1.0,
+            "recall": 0.9886,
+            "iou": 0.9886,
+            "outside_ref_fraction": 0.0
+          }
+        },
+        "ndwi>0": {
+          "jrc_occ>=50": {
+            "valid_pixels": 58950,
+            "pred_fraction": 0.5808,
+            "ref_fraction": 0.5838,
+            "precision": 0.9996,
+            "recall": 0.9947,
+            "iou": 0.9943,
+            "outside_ref_fraction": 0.0002
+          },
+          "worldcover_80": {
+            "valid_pixels": 58950,
+            "pred_fraction": 0.5808,
+            "ref_fraction": 0.5862,
+            "precision": 1.0,
+            "recall": 0.9909,
+            "iou": 0.9908,
+            "outside_ref_fraction": 0.0
+          }
+        },
+        "mndwi>0": {
+          "jrc_occ>=50": {
+            "valid_pixels": 58950,
+            "pred_fraction": 0.5825,
+            "ref_fraction": 0.5838,
+            "precision": 0.9993,
+            "recall": 0.9972,
+            "iou": 0.9965,
+            "outside_ref_fraction": 0.0004
+          },
+          "worldcover_80": {
+            "valid_pixels": 58950,
+            "pred_fraction": 0.5825,
+            "ref_fraction": 0.5862,
+            "precision": 0.9999,
+            "recall": 0.9936,
+            "iou": 0.9935,
+            "outside_ref_fraction": 0.0001
+          }
+        },
+        "mndwi>0.1": {
+          "jrc_occ>=50": {
+            "valid_pixels": 58950,
+            "pred_fraction": 0.581,
+            "ref_fraction": 0.5838,
+            "precision": 0.9998,
+            "recall": 0.9951,
+            "iou": 0.9949,
+            "outside_ref_fraction": 0.0001
+          },
+          "worldcover_80": {
+            "valid_pixels": 58950,
+            "pred_fraction": 0.581,
+            "ref_fraction": 0.5862,
+            "precision": 1.0,
+            "recall": 0.9912,
+            "iou": 0.9912,
+            "outside_ref_fraction": 0.0
+          }
+        },
+        "ndwi>0.15&mndwi>0": {
+          "jrc_occ>=50": {
+            "valid_pixels": 58950,
+            "pred_fraction": 0.5794,
+            "ref_fraction": 0.5838,
+            "precision": 0.9999,
+            "recall": 0.9924,
+            "iou": 0.9923,
+            "outside_ref_fraction": 0.0001
+          },
+          "worldcover_80": {
+            "valid_pixels": 58950,
+            "pred_fraction": 0.5794,
+            "ref_fraction": 0.5862,
+            "precision": 1.0,
+            "recall": 0.9884,
+            "iou": 0.9884,
+            "outside_ref_fraction": 0.0
+          }
+        },
+        "mndwi>0&ndwi>0": {
+          "jrc_occ>=50": {
+            "valid_pixels": 58950,
+            "pred_fraction": 0.5805,
+            "ref_fraction": 0.5838,
+            "precision": 0.9997,
+            "recall": 0.9941,
+            "iou": 0.9939,
+            "outside_ref_fraction": 0.0002
+          },
+          "worldcover_80": {
+            "valid_pixels": 58950,
+            "pred_fraction": 0.5805,
+            "ref_fraction": 0.5862,
+            "precision": 1.0,
+            "recall": 0.9903,
+            "iou": 0.9903,
+            "outside_ref_fraction": 0.0
+          }
+        },
+        "mndwi>0&ndwi>-0.1": {
+          "jrc_occ>=50": {
+            "valid_pixels": 58950,
+            "pred_fraction": 0.5812,
+            "ref_fraction": 0.5838,
+            "precision": 0.9995,
+            "recall": 0.9952,
+            "iou": 0.9947,
+            "outside_ref_fraction": 0.0003
+          },
+          "worldcover_80": {
+            "valid_pixels": 58950,
+            "pred_fraction": 0.5812,
+            "ref_fraction": 0.5862,
+            "precision": 0.9999,
+            "recall": 0.9915,
+            "iou": 0.9914,
+            "outside_ref_fraction": 0.0
+          }
+        },
+        "mndwi>0&ndvi<0.1": {
+          "jrc_occ>=50": {
+            "valid_pixels": 58950,
+            "pred_fraction": 0.2574,
+            "ref_fraction": 0.5838,
+            "precision": 0.9993,
+            "recall": 0.4406,
+            "iou": 0.4405,
+            "outside_ref_fraction": 0.0002
+          },
+          "worldcover_80": {
+            "valid_pixels": 58950,
+            "pred_fraction": 0.2574,
+            "ref_fraction": 0.5862,
+            "precision": 0.9999,
+            "recall": 0.4391,
+            "iou": 0.439,
+            "outside_ref_fraction": 0.0
+          }
+        }
+      },
+      "iou_sweep_vs_jrc": {
+        "ndwi": {
+          "-0.2": 0.995,
+          "-0.1": 0.9951,
+          "-0.05": 0.9946,
+          "0.0": 0.9943,
+          "0.05": 0.9937,
+          "0.1": 0.993,
+          "0.15": 0.9924,
+          "0.2": 0.9892,
+          "0.3": 0.9243
+        },
+        "mndwi": {
+          "-0.2": 0.9922,
+          "-0.1": 0.9961,
+          "-0.05": 0.9965,
+          "0.0": 0.9965,
+          "0.05": 0.9959,
+          "0.1": 0.9949,
+          "0.15": 0.9939,
+          "0.2": 0.9916,
+          "0.3": 0.976
+        }
+      }
+    },
+    {
+      "name": "Phoenix AZ (dry / urban control)",
+      "lat": 33.45,
+      "lon": -112.07,
+      "ok": true,
+      "bbox": [
+        -112.19,
+        33.330000000000005,
+        -111.94999999999999,
+        33.57
+      ],
+      "scene_id": "S2C_MSIL2A_20261025T180421_R041_T12SUB_20261025T204007",
+      "scene_datetime": "2026-10-25T18:04:21.025000Z",
+      "scene_cloud_pct": 0.027025,
+      "processing_baseline": "05.13",
+      "boa_offset_dn": 1000,
+      "reference_items": [
+        "jrc-gsw:120W_40Nv1_3_2020",
+        "esa-worldcover:ESA_WorldCover_10m_2021_v200_N33W114"
+      ],
+      "clear_pixel_fraction": 0.9066,
+      "valid_pixels": 21746,
+      "ref_water_fraction_jrc": 0.0014,
+      "ref_water_fraction_worldcover": 0.0034,
+      "mlp_v1_meta": {
+        "trained": true,
+        "hidden": 8,
+        "epochs": 60,
+        "train_acc": 0.9925,
+        "train_pos": 800,
+        "train_neg": 800,
+        "prob_threshold": 0.55
+      },
+      "mlp_v2_meta": {
+        "trained": false,
+        "reason": "insufficient weak labels",
+        "pos": 11,
+        "neg": 18771
+      },
+      "weak_pos_v1_fraction": 0.05,
+      "weak_pos_v2_fraction": 0.0005,
+      "scores": {
+        "mlp_v1_legacy": {
+          "jrc_occ>=50": {
+            "valid_pixels": 21746,
+            "pred_fraction": 0.3342,
+            "ref_fraction": 0.0014,
+            "precision": 0.001,
+            "recall": 0.2258,
+            "iou": 0.001,
+            "outside_ref_fraction": 0.3339
+          },
+          "worldcover_80": {
+            "valid_pixels": 21746,
+            "pred_fraction": 0.3342,
+            "ref_fraction": 0.0034,
+            "precision": 0.004,
+            "recall": 0.3867,
+            "iou": 0.004,
+            "outside_ref_fraction": 0.3328
+          }
+        },
+        "v1_ndwi>0.15_no_offset": {
+          "jrc_occ>=50": {
+            "valid_pixels": 21746,
+            "pred_fraction": 0.0002,
+            "ref_fraction": 0.0014,
+            "precision": 0.25,
+            "recall": 0.0323,
+            "iou": 0.0294,
+            "outside_ref_fraction": 0.0001
+          },
+          "worldcover_80": {
+            "valid_pixels": 21746,
+            "pred_fraction": 0.0002,
+            "ref_fraction": 0.0034,
+            "precision": 0.5,
+            "recall": 0.0267,
+            "iou": 0.026,
+            "outside_ref_fraction": 0.0001
+          }
+        },
+        "ndwi>0.15": {
+          "jrc_occ>=50": {
+            "valid_pixels": 21746,
+            "pred_fraction": 0.0008,
+            "ref_fraction": 0.0014,
+            "precision": 0.0588,
+            "recall": 0.0323,
+            "iou": 0.0213,
+            "outside_ref_fraction": 0.0007
+          },
+          "worldcover_80": {
+            "valid_pixels": 21746,
+            "pred_fraction": 0.0008,
+            "ref_fraction": 0.0034,
+            "precision": 0.7647,
+            "recall": 0.1733,
+            "iou": 0.1646,
+            "outside_ref_fraction": 0.0002
+          }
+        },
+        "ndwi>0": {
+          "jrc_occ>=50": {
+            "valid_pixels": 21746,
+            "pred_fraction": 0.0017,
+            "ref_fraction": 0.0014,
+            "precision": 0.0263,
+            "recall": 0.0323,
+            "iou": 0.0147,
+            "outside_ref_fraction": 0.0017
+          },
+          "worldcover_80": {
+            "valid_pixels": 21746,
+            "pred_fraction": 0.0017,
+            "ref_fraction": 0.0034,
+            "precision": 0.5263,
+            "recall": 0.2667,
+            "iou": 0.2151,
+            "outside_ref_fraction": 0.0008
+          }
+        },
+        "mndwi>0": {
+          "jrc_occ>=50": {
+            "valid_pixels": 21746,
+            "pred_fraction": 0.0094,
+            "ref_fraction": 0.0014,
+            "precision": 0.0146,
+            "recall": 0.0968,
+            "iou": 0.0129,
+            "outside_ref_fraction": 0.0093
+          },
+          "worldcover_80": {
+            "valid_pixels": 21746,
+            "pred_fraction": 0.0094,
+            "ref_fraction": 0.0034,
+            "precision": 0.0829,
+            "recall": 0.2267,
+            "iou": 0.0646,
+            "outside_ref_fraction": 0.0086
+          }
+        },
+        "mndwi>0.1": {
+          "jrc_occ>=50": {
+            "valid_pixels": 21746,
+            "pred_fraction": 0.0008,
+            "ref_fraction": 0.0014,
+            "precision": 0.1667,
+            "recall": 0.0968,
+            "iou": 0.0652,
+            "outside_ref_fraction": 0.0007
+          },
+          "worldcover_80": {
+            "valid_pixels": 21746,
+            "pred_fraction": 0.0008,
+            "ref_fraction": 0.0034,
+            "precision": 0.7222,
+            "recall": 0.1733,
+            "iou": 0.1625,
+            "outside_ref_fraction": 0.0002
+          }
+        },
+        "ndwi>0.15&mndwi>0": {
+          "jrc_occ>=50": {
+            "valid_pixels": 21746,
+            "pred_fraction": 0.0007,
+            "ref_fraction": 0.0014,
+            "precision": 0.0667,
+            "recall": 0.0323,
+            "iou": 0.0222,
+            "outside_ref_fraction": 0.0006
+          },
+          "worldcover_80": {
+            "valid_pixels": 21746,
+            "pred_fraction": 0.0007,
+            "ref_fraction": 0.0034,
+            "precision": 0.8,
+            "recall": 0.16,
+            "iou": 0.1538,
+            "outside_ref_fraction": 0.0001
+          }
+        },
+        "mndwi>0&ndwi>0": {
+          "jrc_occ>=50": {
+            "valid_pixels": 21746,
+            "pred_fraction": 0.001,
+            "ref_fraction": 0.0014,
+            "precision": 0.0476,
+            "recall": 0.0323,
+            "iou": 0.0196,
+            "outside_ref_fraction": 0.0009
+          },
+          "worldcover_80": {
+            "valid_pixels": 21746,
+            "pred_fraction": 0.001,
+            "ref_fraction": 0.0034,
+            "precision": 0.7143,
+            "recall": 0.2,
+            "iou": 0.1852,
+            "outside_ref_fraction": 0.0003
+          }
+        },
+        "mndwi>0&ndwi>-0.1": {
+          "jrc_occ>=50": {
+            "valid_pixels": 21746,
+            "pred_fraction": 0.0094,
+            "ref_fraction": 0.0014,
+            "precision": 0.0147,
+            "recall": 0.0968,
+            "iou": 0.0129,
+            "outside_ref_fraction": 0.0092
+          },
+          "worldcover_80": {
+            "valid_pixels": 21746,
+            "pred_fraction": 0.0094,
+            "ref_fraction": 0.0034,
+            "precision": 0.0833,
+            "recall": 0.2267,
+            "iou": 0.0649,
+            "outside_ref_fraction": 0.0086
+          }
+        },
+        "mndwi>0&ndvi<0.1": {
+          "jrc_occ>=50": {
+            "valid_pixels": 21746,
+            "pred_fraction": 0.0092,
+            "ref_fraction": 0.0014,
+            "precision": 0.005,
+            "recall": 0.0323,
+            "iou": 0.0043,
+            "outside_ref_fraction": 0.0092
+          },
+          "worldcover_80": {
+            "valid_pixels": 21746,
+            "pred_fraction": 0.0092,
+            "ref_fraction": 0.0034,
+            "precision": 0.0697,
+            "recall": 0.1867,
+            "iou": 0.0534,
+            "outside_ref_fraction": 0.0086
+          }
+        }
+      },
+      "iou_sweep_vs_jrc": {
+        "ndwi": {
+          "-0.2": 0.0013,
+          "-0.1": 0.0018,
+          "-0.05": 0.0109,
+          "0.0": 0.0147,
+          "0.05": 0.0192,
+          "0.1": 0.0196,
+          "0.15": 0.0213,
+          "0.2": 0.0227,
+          "0.3": 0.025
+        },
+        "mndwi": {
+          "-0.2": 0.0012,
+          "-0.1": 0.0021,
+          "-0.05": 0.0048,
+          "0.0": 0.0129,
+          "0.05": 0.0353,
+          "0.1": 0.0652,
+          "0.15": 0.0465,
+          "0.2": 0.0488,
+          "0.3": 0.027
+        }
+      }
+    }
+  ]
+}
