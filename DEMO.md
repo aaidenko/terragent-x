@@ -2,7 +2,8 @@
 
 ## Minute 0–5 — Align
 - Track: Most Technically Complex
-- Repo: `aiden-ko/terragent-x`
+- Repo: `aaidenko/terragent-x`
+- Live: https://terragentx.apps.grok.bot/
 - Hero live story: St. Johns / Cocoa flood + multi-market playbooks in UI
 
 ## Minute 5–90 — Parallel
@@ -23,8 +24,7 @@
 - Video ≤ 2 min
 - Typeform links
 
-## What “all of Terragent” means in 2 hours
-- **Shipped live:** disasters + wildfire loop, outreach queue, 5-bot OS
-- **Shipped as playbooks:** deforestation, mining
-- **Shipped as scale story:** private brokerage (paid imagery when free stack fails)
-- **Not rebuilt:** full Neon multi-tenant, 12 Naïve agents, commercial SkyWatch checkout
+## Scope shipped in two hours
+- **Live:** disasters + wildfire loop on USGS, NWS and NASA EONET data, outreach queue with human approval, five-bot Grok company
+- **Playbooks:** deforestation, mining
+- **Scale story:** private data brokerage (paid imagery when the free stack fails)

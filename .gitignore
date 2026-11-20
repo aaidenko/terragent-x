@@ -42,3 +42,15 @@ next-env.d.ts
 __pycache__/
 *.pyc
 .pytest_cache/
+
+# licensed fonts (personal-use demo files, never commit)
+helvetica-now-font-family/
+
+# raw downloads before grading
+.imagery-raw/
+
+# local screenshots
+.shots/
+
+# local screenshot tooling
+.dev/
