@@ -1,6 +1,11 @@
 import { analyzeTopEvents } from "./analysis";
 import { analyzeAoiNdwi, type EoAnalysis } from "./eo";
-import { draftBroadcast, draftOutreach, matchProspects } from "./outreach";
+import {
+  draftBroadcast,
+  draftOutreach,
+  hasVerifiedContact,
+  matchProspects,
+} from "./outreach";
 import { collectLiveSignals } from "./signals";
 import {
   getEvents,
@@ -133,8 +138,10 @@ export async function runOpsLoop(
       const event = events.find((e) => e.id === prospect.eventId);
       const brief = briefs.find((b) => b.eventId === prospect.eventId);
       if (!event || !brief) return [];
-      return [draftOutreach(event, brief, prospect)];
+      const draft = draftOutreach(event, brief, prospect);
+      return draft ? [draft] : [];
     });
+    const needsContact = prospects.filter((p) => !hasVerifiedContact(p)).length;
     const broadcasts = briefs.flatMap((brief) => {
       const event = events.find((e) => e.id === brief.eventId);
       if (!event) return [];
@@ -145,7 +152,8 @@ export async function runOpsLoop(
     run.steps.push(
       step(
         "closer",
-        `Queued ${drafts.length} 1:1 drafts + ${broadcasts.length} @Terragent broadcast posts — awaiting approval`,
+        `Queued ${drafts.length} 1:1 drafts + ${broadcasts.length} @Terragent broadcast posts — awaiting approval` +
+          (needsContact ? ` · ${needsContact} prospect(s) need a verified contact (no draft made)` : ""),
       ),
     );
     run.status = "awaiting_approval";
@@ -170,8 +178,11 @@ export async function runOpsLoop(
 
 export function approveOutreach(sessionId: string, ids?: string[]) {
   const store = getSessionStore(sessionId);
-  const targets = store.outreach.filter((o) =>
-    ids?.length ? ids.includes(o.id) : o.status === "draft",
+  // Defense in depth: never approve a draft whose recipient fails validation.
+  const targets = store.outreach.filter(
+    (o) =>
+      (ids?.length ? ids.includes(o.id) : o.status === "draft") &&
+      hasVerifiedContact({ channel: o.channel, handleOrEmail: o.to }),
   );
   const now = new Date().toISOString();
   for (const draft of targets) {

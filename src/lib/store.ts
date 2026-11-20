@@ -110,6 +110,6 @@ export function upsertEvents(events: SignalEvent[]) {
     if (idx >= 0) store.events[idx] = event;
     else store.events.unshift(event);
   }
-  store.events = store.events.slice(0, 40);
+  store.events = store.events.slice(0, 80);
   return store.events;
 }

@@ -38,8 +38,11 @@ export type Prospect = {
   kind: string;
   why: string;
   channel: "x" | "email";
+  /** Verified handle/email, or "" when none is on file. */
   handleOrEmail: string;
   fitScore: number;
+  contactStatus?: "verified" | "needs_contact";
+  note?: string;
 };
 
 export type OutreachDraft = {

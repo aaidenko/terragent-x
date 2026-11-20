@@ -1,6 +1,8 @@
 import type { EoAnalysis } from "./eo";
 import { applyEoQuality } from "./eo-brief";
+import { FINDING_ALERT_TEXT_MAX, buildFloodBrief } from "./flood-brief";
 import { playbookById } from "./playbooks";
+import { clipText } from "./text";
 import type { AnalysisBrief, SignalEvent } from "./types";
 
 function uid(prefix: string) {
@@ -31,101 +33,12 @@ export function analyzeEvent(
   const now = new Date().toISOString();
 
   if (event.market === "disasters") {
-    const stage = Number(event.metrics?.stageFt ?? 0);
-    const flood = Number(event.metrics?.floodStageFt ?? 16);
-    const record = Number(event.metrics?.recordFt ?? 17.6);
-    const overFlood = stage ? stage - flood : null;
-    const overRecord = stage ? stage - record : null;
-
-    const methods = [
-      "USGS/NWS stage vs published flood & record thresholds",
-      "Asset class scoring for riverside residential + marina footprints",
-      ...(eo?.method ?? []),
-      playbook?.analysis ?? "disaster playbook",
-    ];
-
-    const limitations = [
-      ...(eo?.limitations ?? []),
-      "Parcel ownership not verified against county assessor in this pass",
-      "Gauge is a point; wind/backwater can change local depths",
-    ];
-
-    let finding: string;
-    const metrics: Record<string, string | number> = {
-      stageFt: stage || "alert-only",
-      floodStageFt: flood,
-      recordFt: record,
-      aoiKm: 5,
-      dataMode: stage > 0 ? "live_gauge" : "alert_fusion",
-    };
-
-    if (eo?.ok && eo.recent) {
-      metrics.ndwi_water_fraction = Number(eo.recent.water_fraction.toFixed(4));
-      metrics.ndwi_mean = Number(eo.recent.ndwi_mean.toFixed(4));
-      metrics.sentinel_scene = eo.recent.scene_id;
-      metrics.sentinel_cloud_pct = Number(eo.recent.cloud_cover_pct.toFixed(2));
-      metrics.sentinel_datetime = eo.recent.datetime;
-      metrics.eo_model = eo.recent.model ?? "ndwi";
-      if (eo.recent.mlp?.train_acc != null) {
-        metrics.mlp_train_acc = eo.recent.mlp.train_acc;
-      }
-      if (eo.recent.mndwi_mean != null) {
-        metrics.mndwi_mean = Number(eo.recent.mndwi_mean.toFixed(4));
-      }
-      if (eo.delta) {
-        metrics.water_fraction_delta = Number(
-          eo.delta.water_fraction_delta.toFixed(4),
-        );
-      }
-      const modelLabel =
-        eo.recent.model === "weakly_supervised_mlp"
-          ? `weakly-supervised MLP water classifier (train acc ${((eo.recent.mlp?.train_acc ?? 0) * 100).toFixed(1)}%)`
-          : "NDWI+MNDWI fusion";
-      finding =
-        (stage > 0
-          ? `Live gauge ${stage.toFixed(2)} ft is ${(overFlood ?? 0).toFixed(2)} ft above flood stage` +
-            (overRecord !== null && overRecord > 0
-              ? ` and ${overRecord.toFixed(2)} ft above the all-time record (${record} ft). `
-              : ". ")
-          : `${event.summary.slice(0, 180)} `) +
-        `Sentinel-2 scene ${eo.recent.scene_id} (${eo.recent.datetime.slice(0, 10)}, cloud ${eo.recent.cloud_cover_pct.toFixed(1)}%) with SCL masking + ${modelLabel} estimates clear-pixel water fraction ${(eo.recent.water_fraction * 100).toFixed(2)}%` +
-        (eo.delta
-          ? ` (Δ ${(eo.delta.water_fraction_delta * 100).toFixed(2)} pp vs prior-month baseline).`
-          : ".") +
-        ` Optical mask is fused with the live hydro signal for outreach-ready impact.`;
-    } else {
-      const wetFraction =
-        stage >= record ? 0.42 : stage >= flood + 1 ? 0.28 : stage >= flood ? 0.15 : 0.05;
-      metrics.estimatedWetFraction = wetFraction;
-      metrics.dataMode = `${metrics.dataMode}+heuristic_fallback`;
-      limitations.unshift(
-        eo?.error
-          ? `Imagery unavailable (${eo.error}) — heuristic wet-fraction used`
-          : "Imagery skipped — heuristic wet-fraction used",
-      );
-      finding =
-        stage > 0
-          ? `Live gauge ${stage.toFixed(2)} ft is ${(overFlood ?? 0).toFixed(2)} ft above flood stage` +
-            (overRecord !== null && overRecord > 0
-              ? ` and ${overRecord.toFixed(2)} ft above the all-time record (${record} ft).`
-              : ".") +
-            ` Heuristic inundation model estimates ~${Math.round(wetFraction * 100)}% of the 5 km riverside AOI at immediate risk.`
-          : `${event.summary} Public alert fused with AOI buffer analysis for outreach-ready property impact.`;
-    }
-
+    const parts = buildFloodBrief(event, eo);
     return {
       id: uid("brief"),
       eventId: event.id,
       market: event.market,
-      headline:
-        stage >= record
-          ? `Record flood + EO fusion · ${event.title.split("—")[0].trim()}`
-          : `Flood EO brief · ${event.title.slice(0, 80)}`,
-      finding,
-      confidence: eo?.ok ? 0.86 : stage > 0 ? 0.72 : 0.6,
-      method: methods,
-      metrics,
-      limitations,
+      ...parts,
       createdAt: now,
       mapHint: { lat: event.lat, lon: event.lon, label: event.title },
     };
@@ -170,7 +83,7 @@ export function analyzeEvent(
     eventId: event.id,
     market: event.market,
     headline: `${playbook?.name ?? event.market} signal · ${event.title}`,
-    finding: `${event.summary} Playbook "${playbook?.name}" is wired for agent handoff; deep raster recipe runs when a clear scene is queued.`,
+    finding: clipText(event.summary || event.title, FINDING_ALERT_TEXT_MAX),
     confidence: 0.55,
     method: [playbook?.analysis ?? "playbook stub", "signal normalization"],
     metrics: { status: playbook?.status ?? "ready" },
@@ -190,10 +103,23 @@ export function analyzeTopEvents(
     const rank = { critical: 4, high: 3, medium: 2, low: 1 };
     // Prefer events with live gauge metrics for disasters
     const boost = (e: SignalEvent) =>
-      e.market === "disasters" && e.metrics?.stageFt != null ? 0.5 : 0;
+      e.market === "disasters" && typeof e.metrics?.stageFt === "number" ? 0.5 : 0;
     return rank[b.severity] + boost(b) - (rank[a.severity] + boost(a));
   });
-  return ranked.slice(0, limit).map((event) =>
+  // One brief per river gauge: a gauge signal and the warning linked to it
+  // carry the same stage, so don't spend two of the top slots on it.
+  const seenGauges = new Set<string>();
+  const picked: SignalEvent[] = [];
+  for (const event of ranked) {
+    if (picked.length >= limit) break;
+    const lid = typeof event.metrics?.site === "string" ? event.metrics.site : null;
+    if (lid && event.market === "disasters") {
+      if (seenGauges.has(lid)) continue;
+      seenGauges.add(lid);
+    }
+    picked.push(event);
+  }
+  return picked.map((event) =>
     applyEoQuality(
       analyzeEvent(event, eoByEventId[event.id], fireCluster),
       eoByEventId[event.id],

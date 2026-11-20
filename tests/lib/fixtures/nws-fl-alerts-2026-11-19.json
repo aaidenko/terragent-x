@@ -1,0 +1,235 @@
+{
+ "features": [
+  {
+   "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.57c05f8c99b3ac9b8df1098f5c1dc170fe7e4da0.001.1",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -81.1,
+       28.61
+      ],
+      [
+       -80.96,
+       28.61
+      ],
+      [
+       -80.96,
+       28.62
+      ],
+      [
+       -80.85,
+       28.62
+      ],
+      [
+       -80.85,
+       28.34
+      ],
+      [
+       -80.86,
+       28.34
+      ],
+      [
+       -80.86,
+       28.35
+      ],
+      [
+       -80.97,
+       28.35
+      ],
+      [
+       -81.09,
+       28.53
+      ],
+      [
+       -81.1,
+       28.61
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "event": "Flood Warning",
+    "headline": "Flood Warning issued November 19 at 6:50PM EST until November 19 at 9:00PM EST by NWS Melbourne FL",
+    "areaDesc": "Brevard, FL; Orange, FL",
+    "severity": "Severe",
+    "certainty": "Likely",
+    "urgency": "Expected",
+    "effective": "2026-11-19T18:50:00-05:00",
+    "onset": "2026-11-19T18:50:00-05:00",
+    "expires": "2026-11-19T21:00:00-05:00",
+    "ends": "2026-11-19T21:00:00-05:00",
+    "messageType": "Update",
+    "description": "* WHAT...Flooding caused by excessive rainfall continues.\n\n* WHERE...Northwestern Brevard County in east central Florida...\nSoutheastern Orange County in east central Florida...\n\n* WHEN...Until 900 PM EST.\n\n* IMPACTS...Flooding of rivers, creeks, streams, and other low-lying\nand flood-prone locations is imminent or occurring.\n\n* ADDITIONAL DETAILS...\n- At 648 PM EST, Automated traffic cameras showed flooding in the\nwarned area. Flooding is already occurring. Between 3 and 7\ninches of rain have fallen.\n- Some locations that will experience flooding include...\nWedgefield, Christmas, Lone Cabbage Fish Camp and Bithlo.\n- Water is over the roadway on FL-520 at the intersection with the\nBeachline (FL-528).\n- http://www.weather.gov/safety/flood",
+    "senderName": "NWS Melbourne FL",
+    "affectedZones": [
+     "https://api.weather.gov/zones/county/FLC009",
+     "https://api.weather.gov/zones/county/FLC095"
+    ],
+    "parameters": {
+     "AWIPSidentifier": [
+      "FLWMLB"
+     ],
+     "WMOidentifier": [
+      "WGUS42 KMLB 192350"
+     ],
+     "NWSheadline": [
+      "FLOOD WARNING NOW IN EFFECT UNTIL 9 PM EST THIS EVENING"
+     ],
+     "BLOCKCHANNEL": [
+      "EAS",
+      "NWEM",
+      "CMAS"
+     ],
+     "EAS-ORG": [
+      "WXR"
+     ],
+     "VTEC": [
+      "/O.EXT.KMLB.FA.W.0011.000000T0000Z-261120T0200Z/"
+     ],
+     "eventEndingTime": [
+      "2026-11-19T21:00:00-05:00"
+     ]
+    }
+   }
+  },
+  {
+   "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.86db550cd84b5754d5e1feee45096d73de574189.001.1",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -80.99,
+       28.54
+      ],
+      [
+       -80.9,
+       28.55
+      ],
+      [
+       -80.8,
+       28.35
+      ],
+      [
+       -80.72,
+       28.05
+      ],
+      [
+       -80.99,
+       28.54
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "event": "Flood Warning",
+    "headline": "Flood Warning issued November 19 at 1:53PM EST by NWS Melbourne FL",
+    "areaDesc": "Brevard, FL",
+    "severity": "Severe",
+    "certainty": "Observed",
+    "urgency": "Immediate",
+    "effective": "2026-11-19T13:53:00-05:00",
+    "onset": "2026-11-19T13:53:00-05:00",
+    "expires": "2026-11-20T10:00:00-05:00",
+    "ends": null,
+    "messageType": "Update",
+    "description": "...The Flood Warning continues for the following rivers in Florida...\n\nSt Johns River Near Cocoa 9w affecting Brevard County.\n\n.Extreme rainfall over the headwaters of the St. Johns River has\ncaused the river near Cocoa to rise through Major Flood Stage and has\nnow quickly passed record flood stage. Additional heavy rainfall over\nthe next 48 hours will continue to produce river rises above record\nflood levels through late week and into this weekend.\n\nFor the St. Johns River...including Cocoa 9w, Above Lake Harney,\nSanford, Deland, Astor...Major flooding is forecast.\n\n* WHAT...Major flooding is occurring and major flooding is forecast.\nThe forecast river level is above the all time flood of record.\n\n* WHERE...St Johns River near Cocoa 9w.\n\n* WHEN...Until further notice.\n\n* IMPACTS...At 17.2 feet, Water enters homes along the St Johns River\nin the Lake Poinsett area west of Cocoa, also low lying homes in\nthe Silver Pines subdivision in Rockledge and the Shakespeare Park\narea of Cocoa. Providence Road area west of Cocoa becomes\nimpassable, cutting off access to homes in the Mullet Lane and Bass\nRoad area. Docks flooded and water in parking lot at Lone Cabbage\nFish Camp.\n\n* ADDITIONAL DETAILS...\n- At 1:15 PM EST Thursday the stage was 18.3 feet.\n- Bankfull stage is 15.8 feet.\n- Recent Activity...The maximum river stage in the 24 hours ending\nat 1:15 PM EST Thursday was 18.3 feet.\n- Forecast...The river is expected to remain steady above flood\nstage at 18.3 feet.\n- Flood stage is 16.0 feet.\n- http://www.weather.gov/safety/flood",
+    "senderName": "NWS Melbourne FL",
+    "affectedZones": [
+     "https://api.weather.gov/zones/county/FLC009"
+    ],
+    "parameters": {
+     "AWIPSidentifier": [
+      "FLSMLB"
+     ],
+     "WMOidentifier": [
+      "WGUS82 KMLB 191853"
+     ],
+     "NWSheadline": [
+      "FLOOD WARNING REMAINS IN EFFECT UNTIL FURTHER NOTICE"
+     ],
+     "BLOCKCHANNEL": [
+      "EAS",
+      "NWEM",
+      "CMAS"
+     ],
+     "EAS-ORG": [
+      "WXR"
+     ],
+     "VTEC": [
+      "/O.CON.KMLB.FL.W.0006.000000T0000Z-000000T0000Z/"
+     ],
+     "expiredReferences": [
+      "w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.d65ab1cc546378e08af2a1513cb65deeaebb79af.001.1,2026-11-19T03:44:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.75078cf824cc430c43253a6ed53ff7c5cbc802ec.001.1,2026-11-19T02:00:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.b675dba70c81262f4f72ba87bb98d163d3e25b2d.001.1,2026-11-18T22:02:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.69aa30f5b35eee7156551ca106d6c5f7aaf67cb1.001.1,2026-11-18T20:07:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.1c92784e863204a3e53d939146852862495b999b.001.1,2026-11-18T15:25:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.5cfe1907ea710d9ba347a4ca5d0c977c7001bf12.001.1,2026-11-18T08:57:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.5a76ee937cc6d2532c7c71adff1791b46b6ec69e.001.1,2026-11-17T20:17:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.2ab0dcba67e466e668b37501d5d7ce7c9754bce6.001.1,2026-11-17T09:21:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.4d24dcf3b1dca46b1c14a715c8538e8db6169665.001.1,2026-11-16T20:20:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.1ca005f84bb2b4a825c2afb3274f005a72bbfc98.002.1,2026-11-16T09:49:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.1caba9b7d187bc9dc3abe9a264be394af9b3ec6c.001.1,2026-11-15T09:19:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.9955f0a4ca1469288ddd57ca0b681efc73bc2bc4.001.1,2026-11-15T19:41:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.8b8a68aad3b0f7423b28caf680ab84bd82eba464.001.1,2026-11-14T09:42:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.eea3065f50e2dbd4e6f3d7a9c915972f7eb47a09.001.1,2026-11-14T19:49:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.19366c8291f333f4c93ef375be74f1a97bb8bb3d.001.1,2026-11-13T20:29:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.b6b83c77a87f75bec334748b3073f52da8b1dc1d.001.1,2026-11-13T10:22:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.e89dd6c48550b7bb91b254e4361d17d17c790705.001.1,2026-11-12T20:35:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.e70869259eab578a2af4f3d82dfadc30b74ea22b.001.1,2026-11-12T08:22:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.5ba250f1fa1bbd04aa9a9e452de342af9cda64bf.001.1,2026-11-11T20:41:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.1176476010176941622fd353e2fe7b8d2ad49b07.001.1,2026-11-11T08:41:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.f07484db571e2982dcf0ce6581a6bc2ab17436cf.001.1,2026-11-10T19:48:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.b700c3910786f2d2a27835f0548fffff941b8d4a.001.1,2026-11-10T09:24:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.1cd7f27364f3548489b2423ca62e99b48c28028a.001.1,2026-11-09T09:22:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.d3a4ddd1acc63053e0d8efa550909dde99891c1c.001.1,2026-11-09T20:04:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.ecdaebbdf2f8a9d1dd9923d56ffc96fdb463f8cf.001.1,2026-11-08T10:59:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.85da380c803564ef0dc2f117f38f373cd7dc883d.001.1,2026-11-08T20:07:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.1d4b44ff8a2e0fd7896841e8a2ddc3f8e5515978.001.1,2026-11-07T10:53:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.a34982d3b11f62dcc8e0cc7e260fe3b974457087.001.1,2026-11-07T20:46:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.735c64a8c6fdb3be9d994b12914a2bb2fbabc70c.001.1,2026-11-06T20:21:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.bfcd812c4f8a2de5fb134c715f22f3541d0e9783.001.1,2026-11-06T09:17:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.c56254b0febcc04cc635379195c3ebec1c31e19c.001.1,2026-11-05T20:25:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.48188c715b42181a12a0eddf79fffe1de3c87256.001.1,2026-11-05T15:10:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.ca5dfa3824a47ff68bddfe8670d00b183d75d018.001.1,2026-11-05T09:11:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.95d5009e2386051f1afc86ac69d05d65f5ee91f8.001.1,2026-11-04T20:39:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.ec99f53a83c6d945a61164e316fc796c8dfc17e0.001.1,2026-11-04T09:06:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.eab2f02d761bbb94354321c9f753dca96f0874a9.001.1,2026-11-03T20:55:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.521365d1d9ecbbe2c5c67f518425495659022306.001.1,2026-11-03T10:49:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.72a0e8919d39028d187b8c049a71412bddbfceb7.001.1,2026-11-02T20:38:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.58dd720ed5308d3920e673c5bbdb984ac9e51c7d.001.1,2026-11-02T09:16:00-05:00 w-nws.webmaster@noaa.gov,urn:oid:2.49.0.1.840.0.46fe17c50ca3866332ebe19381a45115c766a171.001.1,2026-11-02T14:15:00-05:00"
+     ]
+    }
+   }
+  },
+  {
+   "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.8c11a51fff36cca6e5c7d021e392a554c3802420.001.1",
+   "geometry": null,
+   "properties": {
+    "event": "Flood Watch",
+    "headline": "Flood Watch issued November 16 at 3:18PM EST until November 20 at 7:00PM EST by NWS Melbourne FL",
+    "areaDesc": "Inland Volusia; Orange; Seminole; Osceola; Okeechobee; Coastal Volusia; Coastal Indian River; Coastal St. Lucie; Coastal Martin; Inland Northern Brevard; Inland Indian River; Inland St. Lucie; Inland Martin; Mainland Northern Brevard; Northern Brevard Barrier Islands; Inland Southern Brevard; Mainland Southern Brevard; Southern Brevard Barrier Islands",
+    "severity": "Severe",
+    "certainty": "Possible",
+    "urgency": "Future",
+    "effective": "2026-11-16T15:18:00-05:00",
+    "onset": "2026-11-17T17:00:00-05:00",
+    "expires": "2026-11-20T19:00:00-05:00",
+    "ends": "2026-11-20T19:00:00-05:00",
+    "messageType": "Alert",
+    "description": "* WHAT...Flooding caused by excessive rainfall is possible.\n\n* WHERE...Most of east central Florida, including Volusia, Seminole,\nOrange, Osceola, Okeechobee, Brevard, Indian River, Saint Lucie,\nand Martin counties.\n\n* WHEN...From Tuesday afternoon through Friday evening.\n\n* IMPACTS...Excessive runoff may result in flooding of rivers,\ncreeks, streams, and other low-lying and flood-prone locations.\n\n* ADDITIONAL DETAILS...\n- Repeated rounds of showers and isolated storms are forecast\nthrough Friday. Rainfall amounts of 3 to 6 inches are forecast\nwith localized higher amounts of 8 to 12 inches. The greatest\npotential for these higher amounts will be over the coastal\ncounties.\n- http://www.weather.gov/safety/flood",
+    "senderName": "NWS Melbourne FL",
+    "affectedZones": [
+     "https://api.weather.gov/zones/forecast/FLZ041",
+     "https://api.weather.gov/zones/forecast/FLZ045",
+     "https://api.weather.gov/zones/forecast/FLZ046",
+     "https://api.weather.gov/zones/forecast/FLZ053",
+     "https://api.weather.gov/zones/forecast/FLZ058",
+     "https://api.weather.gov/zones/forecast/FLZ141",
+     "https://api.weather.gov/zones/forecast/FLZ154",
+     "https://api.weather.gov/zones/forecast/FLZ159",
+     "https://api.weather.gov/zones/forecast/FLZ164",
+     "https://api.weather.gov/zones/forecast/FLZ247",
+     "https://api.weather.gov/zones/forecast/FLZ254",
+     "https://api.weather.gov/zones/forecast/FLZ259",
+     "https://api.weather.gov/zones/forecast/FLZ264",
+     "https://api.weather.gov/zones/forecast/FLZ347",
+     "https://api.weather.gov/zones/forecast/FLZ447",
+     "https://api.weather.gov/zones/forecast/FLZ547",
+     "https://api.weather.gov/zones/forecast/FLZ647",
+     "https://api.weather.gov/zones/forecast/FLZ747"
+    ],
+    "parameters": {
+     "AWIPSidentifier": [
+      "FFAMLB"
+     ],
+     "WMOidentifier": [
+      "WGUS62 KMLB 162018"
+     ],
+     "NWSheadline": [
+      "FLOOD WATCH IN EFFECT FROM TUESDAY AFTERNOON THROUGH FRIDAY EVENING"
+     ],
+     "BLOCKCHANNEL": [
+      "EAS",
+      "NWEM",
+      "CMAS"
+     ],
+     "EAS-ORG": [
+      "WXR"
+     ],
+     "VTEC": [
+      "/O.NEW.KMLB.FA.A.0004.261117T2200Z-261121T0000Z/"
+     ],
+     "eventEndingTime": [
+      "2026-11-20T19:00:00-05:00"
+     ]
+    }
+   }
+  }
+ ]
+}

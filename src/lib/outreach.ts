@@ -1,3 +1,5 @@
+import { checkContact } from "./contacts";
+import { clipText } from "./text";
 import type {
   AnalysisBrief,
   BroadcastDraft,
@@ -10,13 +12,18 @@ function uid(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
+/**
+ * Candidate prospects. `handleOrEmail` must be a real, verified contact or
+ * empty. Placeholders (".test" domains, "@search:" lookups, …) are never
+ * stored here; matchProspects() also re-validates every value.
+ */
 const DISASTER_PROSPECTS: Omit<Prospect, "id" | "eventId">[] = [
   {
     name: "Lone Cabbage Fish Camp",
     kind: "Marina / riverside business",
     why: "NWS impacts list docks/parking flooded at major stage near Cocoa.",
     channel: "x",
-    handleOrEmail: "@search:Lone Cabbage Fish Camp Cocoa",
+    handleOrEmail: "",
     fitScore: 0.91,
   },
   {
@@ -24,7 +31,7 @@ const DISASTER_PROSPECTS: Omit<Prospect, "id" | "eventId">[] = [
     kind: "Residential property",
     why: "Homes called out when stage enters ~17.2 ft+ major flood impacts.",
     channel: "email",
-    handleOrEmail: "ops@example-lake-poinsett-hoa.test",
+    handleOrEmail: "",
     fitScore: 0.88,
   },
   {
@@ -32,7 +39,7 @@ const DISASTER_PROSPECTS: Omit<Prospect, "id" | "eventId">[] = [
     kind: "Property management",
     why: "Portfolio risk across Rockledge / Cocoa low-lying stock.",
     channel: "x",
-    handleOrEmail: "@search:Brevard property management flood",
+    handleOrEmail: "",
     fitScore: 0.8,
   },
   {
@@ -40,7 +47,7 @@ const DISASTER_PROSPECTS: Omit<Prospect, "id" | "eventId">[] = [
     kind: "Residential landlord",
     why: "Subdivision named in NWS major-flood impact language.",
     channel: "email",
-    handleOrEmail: "manager@example-silver-pines.test",
+    handleOrEmail: "",
     fitScore: 0.84,
   },
 ];
@@ -51,7 +58,7 @@ const FIRE_PROSPECTS: Omit<Prospect, "id" | "eventId">[] = [
     kind: "Timber",
     why: "Acreage inside 10 km hotspot buffer.",
     channel: "x",
-    handleOrEmail: "@search:timber landowner near fire",
+    handleOrEmail: "",
     fitScore: 0.77,
   },
   {
@@ -59,7 +66,7 @@ const FIRE_PROSPECTS: Omit<Prospect, "id" | "eventId">[] = [
     kind: "Public sector",
     why: "Needs perimeter + asset exposure brief for public updates.",
     channel: "email",
-    handleOrEmail: "em@example-county.gov.test",
+    handleOrEmail: "",
     fitScore: 0.82,
   },
 ];
@@ -67,19 +74,36 @@ const FIRE_PROSPECTS: Omit<Prospect, "id" | "eventId">[] = [
 export function matchProspects(event: SignalEvent, limit = 3): Prospect[] {
   const pool =
     event.market === "wildfire" ? FIRE_PROSPECTS : DISASTER_PROSPECTS;
-  return pool.slice(0, limit).map((p) => ({
-    ...p,
-    id: uid("prospect"),
-    eventId: event.id,
-  }));
+  return pool.slice(0, limit).map((p) => {
+    const check = checkContact(p.channel, p.handleOrEmail);
+    return {
+      ...p,
+      // Never carry an unverified value forward.
+      handleOrEmail: check.ok ? p.handleOrEmail.trim() : "",
+      contactStatus: check.ok ? ("verified" as const) : ("needs_contact" as const),
+      ...(check.ok
+        ? {}
+        : { note: "Needs contact: no verified handle/email on file, so no outreach draft was made." }),
+      id: uid("prospect"),
+      eventId: event.id,
+    };
+  });
+}
+
+/** True only for prospects whose contact passes validation. */
+export function hasVerifiedContact(p: Pick<Prospect, "channel" | "handleOrEmail">): boolean {
+  return checkContact(p.channel, p.handleOrEmail).ok;
 }
 
 export function draftOutreach(
   event: SignalEvent,
   brief: AnalysisBrief,
   prospect: Prospect,
-): OutreachDraft {
-  const stage = event.metrics?.stageFt;
+): OutreachDraft | null {
+  // No verified contact → no draft (caller shows a "needs contact" note).
+  if (!hasVerifiedContact(prospect)) return null;
+  const stage =
+    typeof event.metrics?.stageFt === "number" ? event.metrics.stageFt : undefined;
   const disclosure =
     "— Terragent Earth intel (AI-assisted). Opt out: reply STOP. Businesses only.";
 
@@ -94,7 +118,7 @@ export function draftOutreach(
       eventId: event.id,
       channel: "x",
       to: prospect.handleOrEmail,
-      body: body.slice(0, 480),
+      body: clipText(body, 480),
       status: "draft",
       createdAt: new Date().toISOString(),
     };
@@ -117,7 +141,8 @@ export function draftBroadcast(
   event: SignalEvent,
   brief: AnalysisBrief,
 ): BroadcastDraft {
-  const stage = event.metrics?.stageFt;
+  const stage =
+    typeof event.metrics?.stageFt === "number" ? event.metrics.stageFt : undefined;
   const kind =
     event.market === "wildfire"
       ? "wildfire"
@@ -126,7 +151,9 @@ export function draftBroadcast(
         : "Earth event";
   const placeHint =
     event.market === "disasters"
-      ? "Brevard / St. Johns area"
+      ? String(event.metrics?.gaugeName ?? event.metrics?.area ?? "Florida")
+          .split(";")[0]
+          .trim()
       : event.title.split(",")[0] ?? "your area";
 
   const body =
@@ -147,7 +174,7 @@ export function draftBroadcast(
     market: event.market,
     channel: "x",
     handle: "@Terragent",
-    body: body.slice(0, 400),
+    body: clipText(body, 400),
     status: "draft",
     createdAt: new Date().toISOString(),
   };

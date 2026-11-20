@@ -1,12 +1,25 @@
+import { alertToSignal, floodKind, isFloodAlert, parseVtec, type NwsAlertFeature } from "./alerts";
+import { geometryCentroid, meanPoint, pointInGeometry, type GeoJsonGeometry } from "./geo";
+import {
+  NAMED_GAUGE_SIGNALS,
+  NWPS_BASE,
+  categoryRank,
+  gaugeToSignal,
+  isFlooding,
+  linkGaugesToWarning,
+  parseNwpsGauge,
+  type GaugeReading,
+  type NwpsGaugeJson,
+} from "./nwps";
 import type { SignalEvent } from "./types";
 
-function severityFromStage(stageFt: number, floodFt: number): SignalEvent["severity"] {
-  const over = stageFt - floodFt;
-  if (over >= 2) return "critical";
-  if (over >= 0.5) return "high";
-  if (over >= 0) return "medium";
-  return "low";
-}
+const FETCH_TIMEOUT_MS = 20_000;
+/** Max NWPS gauges fetched in detail per loop (flooding + warning-linked). */
+const MAX_GAUGES = 16;
+/** Max zone geometries fetched for an alert without its own polygon. */
+const MAX_ZONES_PER_ALERT = 8;
+/** Florida bounding box for the NWPS gauge listing. */
+const FL_BBOX = { xmin: -87.7, ymin: 24.4, xmax: -79.8, ymax: 31.1 };
 
 async function fetchJson<T>(url: string, init?: RequestInit): Promise<T | null> {
   try {
@@ -18,6 +31,7 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T | null> 
         ...(init?.headers ?? {}),
       },
       cache: "no-store",
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
     if (!res.ok) return null;
     return (await res.json()) as T;
@@ -33,110 +47,231 @@ type UsgsIv = {
         siteName?: string;
         geoLocation?: { geogLocation?: { latitude?: number; longitude?: number } };
       };
-      variable?: { variableDescription?: string; unit?: { unitCode?: string } };
       values?: Array<{ value?: Array<{ value?: string; dateTime?: string }> }>;
     }>;
   };
 };
 
-/** St. Johns River near Cocoa (NWS COCF1 / hero flood site). */
-export async function fetchCocoaGauge(): Promise<SignalEvent | null> {
-  // Prefer AHPS/NWS observed stage JSON when available; USGS site IDs vary.
-  const ahps = await fetchJson<{
-    observed?: { primary?: Array<{ valid?: string; primary?: string }> };
-  }>("https://api.water.noaa.gov/nwps/v1/gauges/COCF1");
+type NwpsListGauge = {
+  lid: string;
+  name: string;
+  state?: { abbreviation?: string };
+  latitude: number;
+  longitude: number;
+  status?: NwpsGaugeJson["status"];
+};
 
-  const obs = ahps?.observed?.primary?.at(-1);
-  const floodStageFt = 16.0;
-  const recordFt = 17.6;
-  const lat = 28.386;
-  const lon = -80.742;
+export async function fetchNwpsGauge(lid: string): Promise<GaugeReading | null> {
+  const json = await fetchJson<NwpsGaugeJson>(`${NWPS_BASE}/gauges/${encodeURIComponent(lid)}`);
+  return parseNwpsGauge(json);
+}
 
-  if (obs?.primary != null && Number.isFinite(Number(obs.primary))) {
-    const stageFt = Number(obs.primary);
-    return {
-      id: "flood-cocoa-stjohns",
-      market: "disasters",
-      title: `St. Johns River near Cocoa — ${stageFt.toFixed(2)} ft`,
-      summary:
-        stageFt >= recordFt
-          ? `Live NWPS stage ${stageFt.toFixed(2)} ft exceeds the 17.6 ft all-time record. Major flooding impacts along the St. Johns in Brevard County (Lake Poinsett / Silver Pines / Shakespeare Park pattern).`
-          : `Live NWPS stage ${stageFt.toFixed(2)} ft vs flood stage ${floodStageFt} ft at COCF1.`,
-      lat,
-      lon,
-      severity: severityFromStage(stageFt, floodStageFt),
-      source: "NOAA NWPS COCF1",
-      sourceUrl: "https://water.weather.gov/ahps2/hydrograph.php?wfo=mlb&gage=cocf1",
-      observedAt: obs.valid ?? new Date().toISOString(),
-      metrics: {
-        stageFt: Number(stageFt.toFixed(2)),
-        floodStageFt,
-        recordFt,
-        aboveRecordFt: Number((stageFt - recordFt).toFixed(2)),
-        site: "COCF1",
-      },
-      xHints: [
-        "Cocoa Florida flooding",
-        "St Johns River flood Brevard",
-        "Brevard EOC shelter",
-      ],
-    };
-  }
+/** All NWPS gauges in Florida (lightweight listing incl. status). */
+export async function fetchNwpsFloridaGauges(): Promise<NwpsListGauge[]> {
+  const q = new URLSearchParams({
+    "bbox.xmin": String(FL_BBOX.xmin),
+    "bbox.ymin": String(FL_BBOX.ymin),
+    "bbox.xmax": String(FL_BBOX.xmax),
+    "bbox.ymax": String(FL_BBOX.ymax),
+    srid: "EPSG_4326",
+  });
+  const data = await fetchJson<{ gauges?: NwpsListGauge[] }>(`${NWPS_BASE}/gauges?${q}`);
+  return (data?.gauges ?? []).filter(
+    (g) =>
+      g.state?.abbreviation === "FL" &&
+      typeof g.latitude === "number" &&
+      typeof g.longitude === "number",
+  );
+}
 
-  // USGS fallback (secondary), then static briefing from NWS impact language
-  const url =
-    "https://waterservices.usgs.gov/nwis/iv/?format=json&sites=02232000&parameterCd=00065&siteStatus=all";
+/**
+ * USGS IV stage-only fallback for a named gauge when NWPS is unreachable.
+ * Uses the verified USGS id for that gauge and reports stage only: flood
+ * thresholds come from NWPS, so none are claimed here.
+ */
+async function usgsStageFallback(signalId: string): Promise<SignalEvent | null> {
+  const named = NAMED_GAUGE_SIGNALS[signalId];
+  if (!named) return null;
+  const url = `https://waterservices.usgs.gov/nwis/iv/?format=json&sites=${named.expectedUsgsId}&parameterCd=00065&siteStatus=all`;
   const data = await fetchJson<UsgsIv>(url);
   const series = data?.value?.timeSeries?.[0];
   const latest = series?.values?.[0]?.value?.at(-1);
-  if (latest?.value) {
-    const stageFt = Number(latest.value);
-    return {
-      id: "flood-cocoa-stjohns",
-      market: "disasters",
-      title: `${series?.sourceInfo?.siteName ?? "St. Johns near Cocoa"} — ${stageFt.toFixed(2)} ft`,
-      summary: `Live USGS stage ${stageFt.toFixed(2)} ft vs flood stage ${floodStageFt} ft.`,
-      lat: series?.sourceInfo?.geoLocation?.geogLocation?.latitude ?? lat,
-      lon: series?.sourceInfo?.geoLocation?.geogLocation?.longitude ?? lon,
-      severity: severityFromStage(stageFt, floodStageFt),
-      source: "USGS NWIS IV",
-      sourceUrl: url,
-      observedAt: latest.dateTime ?? new Date().toISOString(),
-      metrics: {
-        stageFt: Number(stageFt.toFixed(2)),
-        floodStageFt,
-        recordFt,
-        aboveRecordFt: Number((stageFt - recordFt).toFixed(2)),
-        site: series?.sourceInfo?.siteName ?? "02232000",
-      },
-      xHints: ["Cocoa Florida flooding", "St Johns River flood", "Brevard County flood"],
-    };
-  }
-
+  const lat = series?.sourceInfo?.geoLocation?.geogLocation?.latitude;
+  const lon = series?.sourceInfo?.geoLocation?.geogLocation?.longitude;
+  const stageFt = Number(latest?.value);
+  if (!latest?.value || !Number.isFinite(stageFt) || lat == null || lon == null) return null;
+  const name = series?.sourceInfo?.siteName ?? `USGS ${named.expectedUsgsId}`;
   return {
-    id: "flood-cocoa-stjohns",
+    id: signalId,
     market: "disasters",
-    title: "St. Johns River near Cocoa — major / record flood",
-    summary:
-      "NWS Melbourne reports the St. Johns near Cocoa above the all-time flood of record (~17.6 ft), with water entering homes in Lake Poinsett, Silver Pines, and Shakespeare Park.",
+    title: `${name} (USGS ${named.expectedUsgsId}) — ${stageFt.toFixed(2)} ft`,
+    summary: `Live USGS stage ${stageFt.toFixed(2)} ft at ${latest.dateTime ?? "latest reading"}. NWPS (${named.lid}) unavailable, so no flood-category comparison was made.`,
     lat,
     lon,
-    severity: "critical",
-    source: "NWS / USGS (cached briefing)",
-    sourceUrl: "https://water.weather.gov/ahps2/hydrograph.php?wfo=mlb&gage=cocf1",
-    observedAt: new Date().toISOString(),
+    severity: "low",
+    source: `USGS NWIS IV ${named.expectedUsgsId}`,
+    sourceUrl: url,
+    observedAt: latest.dateTime ?? new Date().toISOString(),
     metrics: {
-      stageFt: 18.3,
-      floodStageFt,
-      recordFt,
-      status: "major_flood_above_record",
+      site: named.lid,
+      usgsId: named.expectedUsgsId,
+      gaugeName: name,
+      stageFt: Number(stageFt.toFixed(2)),
     },
-    xHints: [
-      "Cocoa Florida flooding",
-      "St Johns River flood Brevard",
-      "Brevard EOC shelter",
-    ],
+    xHints: named.hints,
   };
+}
+
+const zoneCache = new Map<string, { lat: number; lon: number } | null>();
+
+async function zoneCentroid(url: string): Promise<{ lat: number; lon: number } | null> {
+  if (zoneCache.has(url)) return zoneCache.get(url) ?? null;
+  const z = await fetchJson<{ geometry?: GeoJsonGeometry | null }>(url);
+  const c = geometryCentroid(z?.geometry ?? null);
+  if (z) zoneCache.set(url, c);
+  return c;
+}
+
+/** Location from the alert's own polygon, else from its affected zones. */
+async function alertLocation(
+  f: NwsAlertFeature,
+): Promise<{ lat: number; lon: number; source: "polygon" | "zones" } | null> {
+  const own = geometryCentroid(f.geometry ?? null);
+  if (own) return { ...own, source: "polygon" };
+  const zones = (f.properties?.affectedZones ?? []).slice(0, MAX_ZONES_PER_ALERT);
+  const pts = (await Promise.all(zones.map(zoneCentroid))).filter(
+    (p): p is { lat: number; lon: number } => p != null,
+  );
+  const mean = meanPoint(pts);
+  return mean ? { ...mean, source: "zones" } : null;
+}
+
+/** Gauge metrics copied onto a river warning that names/contains that gauge. */
+const GAUGE_KEYS_FOR_ALERT = [
+  "site",
+  "gaugeName",
+  "usgsId",
+  "stageFt",
+  "observedCategory",
+  "observedAt",
+  "actionStageFt",
+  "floodStageFt",
+  "moderateStageFt",
+  "majorStageFt",
+  "forecastStageFt",
+  "forecastCategory",
+  "forecastValidTime",
+  "recordFt",
+  "recordDate",
+  "aboveRecordFt",
+];
+
+export async function fetchFloridaFloodSignals(): Promise<SignalEvent[]> {
+  const [alertsJson, listing] = await Promise.all([
+    // No message_type filter: river Flood Warnings are almost always
+    // "Update" (CON/EXT) messages and were being dropped.
+    fetchJson<{ features?: NwsAlertFeature[] }>(
+      "https://api.weather.gov/alerts/active?area=FL&status=actual",
+    ),
+    fetchNwpsFloridaGauges(),
+  ]);
+  const alerts = (alertsJson?.features ?? []).filter(isFloodAlert);
+
+  // 1) Link each river (VTEC FL) warning to the NWPS gauges it names.
+  const linked = new Map<string, string[]>(); // alert id -> LIDs
+  for (const f of alerts) {
+    const vtec = parseVtec(f.properties?.parameters?.VTEC?.[0]);
+    if (floodKind(f.properties?.event ?? "", vtec) !== "river") continue;
+    const lids = linkGaugesToWarning(
+      { description: f.properties?.description ?? "", geometry: f.geometry ?? null },
+      listing.map((g) => ({ lid: g.lid, name: g.name, lat: g.latitude, lon: g.longitude })),
+      pointInGeometry,
+    );
+    if (lids.length) linked.set(f.id, lids);
+  }
+
+  // 2) Which gauges to read in detail: named hero gauges, warning-linked
+  //    gauges, then any other FL gauge at/above minor (observed or forecast).
+  const heroLids = Object.values(NAMED_GAUGE_SIGNALS).map((n) => n.lid);
+  const warned = [...new Set([...linked.values()].flat())];
+  const flooding = listing
+    .filter(isFlooding)
+    .sort(
+      (a, b) =>
+        categoryRank(b.status?.observed?.floodCategory) -
+          categoryRank(a.status?.observed?.floodCategory) ||
+        categoryRank(b.status?.forecast?.floodCategory) -
+          categoryRank(a.status?.forecast?.floodCategory),
+    )
+    .map((g) => g.lid);
+  const lids = [...new Set([...heroLids, ...warned, ...flooding])].slice(0, MAX_GAUGES);
+  const readings = (await Promise.all(lids.map(fetchNwpsGauge))).filter(
+    (g): g is GaugeReading => g != null,
+  );
+  const byLid = new Map(readings.map((g) => [g.lid, g]));
+
+  const alertIdsByLid = new Map<string, string[]>();
+  for (const [alertId, ls] of linked) {
+    for (const lid of ls) {
+      const short = `nws-${alertId.split("/").pop()}`;
+      alertIdsByLid.set(lid, [...(alertIdsByLid.get(lid) ?? []), short]);
+    }
+  }
+
+  const out: SignalEvent[] = [];
+
+  // 3) Gauge signals (hero ids keep their stable id).
+  for (const [signalId, named] of Object.entries(NAMED_GAUGE_SIGNALS)) {
+    const g = byLid.get(named.lid);
+    if (g && g.usgsId && g.usgsId !== named.expectedUsgsId) {
+      console.warn(
+        `[terragent] NWPS ${named.lid} reports USGS ${g.usgsId}, expected ${named.expectedUsgsId}; using NWPS value`,
+      );
+    }
+    const sig = g
+      ? gaugeToSignal(g, {
+          id: signalId,
+          hints: named.hints,
+          linkedAlertIds: alertIdsByLid.get(g.lid),
+        })
+      : null;
+    const fallback = sig ?? (await usgsStageFallback(signalId));
+    if (fallback) out.push(fallback);
+  }
+  for (const g of readings) {
+    if (heroLids.includes(g.lid)) continue;
+    const sig = gaugeToSignal(g, { linkedAlertIds: alertIdsByLid.get(g.lid) });
+    if (sig) out.push(sig);
+  }
+
+  // 4) Alert signals with their own centroid and parameters.
+  const located = await Promise.all(alerts.map(async (f) => ({ f, loc: await alertLocation(f) })));
+  for (const { f, loc } of located) {
+    if (!loc) continue; // never pin an alert to a default point
+    const ls = linked.get(f.id) ?? [];
+    const extra: Record<string, string | number> = {};
+    if (ls.length) {
+      extra.linkedGauges = ls.join(",");
+      const primary = ls.map((l) => byLid.get(l)).find((g) => g?.observed);
+      const gaugeSig = primary ? gaugeToSignal(primary) : null;
+      for (const k of GAUGE_KEYS_FOR_ALERT) {
+        const v = gaugeSig?.metrics?.[k];
+        if (v !== undefined) extra[k] = v;
+      }
+    }
+    out.push(alertToSignal(f, loc, { metrics: extra }));
+  }
+  return out;
+}
+
+/** @deprecated kept for callers; resolves the Cocoa hero via NWPS COCF1. */
+export async function fetchCocoaGauge(): Promise<SignalEvent | null> {
+  const g = await fetchNwpsGauge(NAMED_GAUGE_SIGNALS["flood-cocoa-stjohns"].lid);
+  const named = NAMED_GAUGE_SIGNALS["flood-cocoa-stjohns"];
+  return (
+    (g ? gaugeToSignal(g, { id: "flood-cocoa-stjohns", hints: named.hints }) : null) ??
+    (await usgsStageFallback("flood-cocoa-stjohns"))
+  );
 }
 
 type EonetResponse = {
@@ -202,73 +337,16 @@ export async function fetchEonetEvents(): Promise<SignalEvent[]> {
   return out;
 }
 
-type NwsAlert = {
-  features?: Array<{
-    id: string;
-    properties?: {
-      event?: string;
-      headline?: string;
-      areaDesc?: string;
-      severity?: string;
-      effective?: string;
-      ends?: string;
-      description?: string;
-    };
-    geometry?: { type: string; coordinates?: unknown } | null;
-  }>;
-};
-
-export async function fetchFloridaFloodAlerts(): Promise<SignalEvent[]> {
-  const data = await fetchJson<NwsAlert>(
-    "https://api.weather.gov/alerts/active?area=FL&status=actual&message_type=alert",
-  );
-  if (!data?.features?.length) return [];
-
-  return data.features
-    .filter((f) => {
-      const ev = (f.properties?.event ?? "").toLowerCase();
-      return ev.includes("flood");
-    })
-    .slice(0, 8)
-    .map((f, i) => {
-      const sev = (f.properties?.severity ?? "Moderate").toLowerCase();
-      return {
-        id: `nws-${f.id?.split("/").pop() ?? i}`,
-        market: "disasters" as const,
-        title: f.properties?.headline || f.properties?.event || "Florida flood alert",
-        summary: (f.properties?.description ?? f.properties?.areaDesc ?? "").slice(0, 320),
-        lat: 28.4,
-        lon: -80.7,
-        severity:
-          sev === "extreme" || sev === "severe"
-            ? ("critical" as const)
-            : sev === "moderate"
-              ? ("high" as const)
-              : ("medium" as const),
-        source: "NWS alerts",
-        sourceUrl: f.id,
-        observedAt: f.properties?.effective ?? new Date().toISOString(),
-        metrics: {
-          area: f.properties?.areaDesc ?? "",
-          event: f.properties?.event ?? "",
-        },
-        xHints: ["Florida flood warning", f.properties?.areaDesc?.split(";")[0] ?? "FL flood"],
-      };
-    });
-}
-
 export async function collectLiveSignals(): Promise<SignalEvent[]> {
   const settled = await Promise.allSettled([
-    fetchCocoaGauge(),
+    fetchFloridaFloodSignals(),
     fetchEonetEvents(),
-    fetchFloridaFloodAlerts(),
   ]);
 
-  const cocoa = settled[0].status === "fulfilled" ? settled[0].value : null;
+  const flood = settled[0].status === "fulfilled" ? settled[0].value : [];
   const eonet = settled[1].status === "fulfilled" ? settled[1].value : [];
-  const nws = settled[2].status === "fulfilled" ? settled[2].value : [];
 
-  const events = [...(cocoa ? [cocoa] : []), ...eonet, ...nws];
+  const events = [...flood, ...eonet];
 
   // Deduplicate by id; prefer richer metric payloads
   const byId = new Map<string, SignalEvent>();
