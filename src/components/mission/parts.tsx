@@ -144,7 +144,7 @@ export function LoopLog({ loop, running }: { loop?: LoopRun; running: boolean })
           {loop.id} · started {clock(loop.startedAt)}
           {duration ? ` · ${duration}s` : ""}
         </Mono>
-        <Pill live={loop.status === "error"} className={cn(loop.status === "running" && "text-paper")}>
+        <Pill className={cn(loop.status === "running" && "text-paper")}>
           {loop.status === "running" ? <LiveDot quiet /> : null}
           {LOOP_STATUS_LABEL[loop.status]}
         </Pill>

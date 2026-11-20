@@ -121,7 +121,7 @@ export async function LiveNow() {
           <CropFrame inset="1.25rem" sparkles={["tr", "bl"]} />
           <WorldMap dots={landDotsPath(9)} markers={markers} className="relative z-0" />
           <div className="pointer-events-none absolute bottom-[2.1rem] left-[2.2rem] z-20 flex items-center gap-3">
-            <Pill live={critical > 0}>{critical} high or critical</Pill>
+            <Pill>{critical} high or critical</Pill>
           </div>
         </Panel>
       </div>

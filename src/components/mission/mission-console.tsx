@@ -86,7 +86,7 @@ export function MissionConsole({ dots }: { dots: string }) {
   const shownDrafts = showAllDrafts ? state.outreach : state.outreach.slice(0, 6);
 
   const statusPill = latest ? (
-    <Pill live={latest.status === "error"}>
+    <Pill>
       {running ? <LiveDot quiet /> : null}
       {running ? "Running" : LOOP_STATUS_LABEL[latest.status]}
       <span className="text-faint">· {relativeTime(latest.finishedAt ?? latest.startedAt, now)}</span>
@@ -191,7 +191,7 @@ export function MissionConsole({ dots }: { dots: string }) {
               </p>
             ) : (
               <div className="absolute bottom-[2.2rem] left-[2.4rem] z-20 flex flex-wrap items-center gap-2">
-                <Pill live={critical > 0}>{critical} critical</Pill>
+                <Pill>{critical} critical</Pill>
                 <Pill>{state.events.length} on the map</Pill>
               </div>
             )}

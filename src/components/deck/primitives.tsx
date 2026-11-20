@@ -49,9 +49,8 @@ export function Brand({ className }: { className?: string }) {
 export function Pill({
   children,
   className,
-  live,
   ...props
-}: ComponentProps<"span"> & { live?: boolean }) {
+}: ComponentProps<"span">) {
   return (
     <span
       className={cn(
@@ -60,7 +59,6 @@ export function Pill({
       )}
       {...props}
     >
-      {live ? <LiveDot /> : null}
       {children}
     </span>
   );

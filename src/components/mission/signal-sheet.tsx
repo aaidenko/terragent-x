@@ -84,7 +84,7 @@ function SheetBody({
     <>
       <div className="flex items-center justify-between gap-4 px-6 py-5 md:px-9">
         <div className="flex items-center gap-2.5">
-          <Pill live={hot}>
+          <Pill>
             {!hot ? <SeverityMeter severity={event.severity} className="h-3" /> : null}
             {SEVERITY_LABEL[event.severity]}
           </Pill>

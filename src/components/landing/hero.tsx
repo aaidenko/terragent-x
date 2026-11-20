@@ -13,7 +13,7 @@ async function LivePill() {
     return <Pill>Feeds quiet</Pill>;
   }
   return (
-    <Pill live>
+    <Pill>
       Live <span className="text-faint">·</span>{" "}
       <span className="tabular">{p.events.length}</span> signals
     </Pill>
