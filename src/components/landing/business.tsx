@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Arrow, ArrowRight, ArrowTick, CornerTick, SparkleAt } from "@/components/deck/glyphs";
+import { Arrow, ArrowRight, CornerTick, SparkleAt } from "@/components/deck/glyphs";
 import { Display, DrawRule, Reveal } from "@/components/deck/motion";
 import { Brand, Glass, IndexMark, LiveDot, Panel, Pill, Strip } from "@/components/deck/primitives";
 import { PLAYBOOKS, type Playbook } from "@/lib/playbooks";
@@ -63,74 +63,6 @@ export function Markets() {
           );
         })}
       </ol>
-    </section>
-  );
-}
-
-/* ───────────── Slide 7 — giant title, glass price table ───────────── */
-function splitPrice(hint: string) {
-  const m = hint.match(/^(\S+)\s+(.*)$/);
-  return m ? { price: m[1], unit: m[2] } : { price: hint, unit: "" };
-}
-
-export function Model() {
-  const rows = PLAYBOOKS.filter((p) => p.status !== "roadmap");
-  return (
-    <section aria-labelledby="model-title" className="relative">
-      <Panel
-        tone="dusk"
-        className="relative grid gap-12 overflow-hidden px-5 pt-16 pb-12 md:min-h-[min(100svh,56.25vw)] md:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)] md:px-10 md:pt-14 md:pb-0"
-      >
-        <div className="flex flex-col justify-between gap-14 md:pb-14">
-          <Display
-            as="h2"
-            lines={["Business", "model"]}
-            className="text-display-l"
-            label="Business model"
-          />
-          <span id="model-title" className="sr-only">
-            Business model
-          </span>
-          <Reveal className="grid max-w-[30rem] grid-cols-[auto_1fr] gap-x-12">
-            <ArrowTick dir="sw" className="mt-1 text-paper/85" />
-            <p className="max-w-[16rem] text-micro text-paper/85">
-              Free public data in. Paid, verified answers out. Priced per asset, per site or per
-              pack, and billed only when a brief is delivered.
-            </p>
-          </Reveal>
-        </div>
-
-        <div className="flex flex-col md:justify-end">
-          <div className="mb-6 hidden justify-end md:flex">
-            <Pill>Pricing</Pill>
-          </div>
-          <Reveal y={28}>
-            <Glass className="overflow-hidden md:rounded-b-none md:border-b-0">
-              <ul>
-                {rows.map((p, i) => {
-                  const { price, unit } = splitPrice(p.priceHint);
-                  return (
-                    <li
-                      key={p.id}
-                      className={cn(
-                        "grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4 px-6 py-6 md:gap-6 md:px-8 md:py-7",
-                        i > 0 && "border-t border-white/20",
-                      )}
-                    >
-                      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                        <span className="text-title tabular">{price}</span>
-                        <span className="text-micro text-paper/80">({unit})</span>
-                      </div>
-                      <Arrow dir="se" className="text-paper/85" />
-                      <p className="text-micro text-paper/80">{p.buyers.slice(0, 3).join(", ")}</p>
-                    </li>
-                  );
-                })}
-              </ul>
-            </Glass>
-          </Reveal>
-        </div>
-      </Panel>
     </section>
   );
 }

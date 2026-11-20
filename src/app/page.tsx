@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { Markets, Model, Different, Roadmap } from "@/components/landing/business";
+import { Markets, Different, Roadmap } from "@/components/landing/business";
 import { Close } from "@/components/landing/close";
 import { Hero } from "@/components/landing/hero";
 import { LiveNow, LiveNowFallback } from "@/components/landing/live";
@@ -20,7 +20,6 @@ export default function Home() {
         <LiveNow />
       </Suspense>
       <Markets />
-      <Model />
       <Different />
       <Roadmap />
       <Close />
