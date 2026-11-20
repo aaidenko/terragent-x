@@ -127,7 +127,7 @@ The UI is designed in the same language as our pitch deck: monochrome, one signa
 - **Researched.** Scout and Matcher use the browser and X to find ground truth and reachable businesses near each area of interest.
 - **Engineered.** A Terragent Engineer Grok Bot took over coding hand-offs, built the EO factory and API hardening, and the app is deployed from the Grok Bot environment.
 
-The full session export is in `grok/session-export/`.
+The full, scrubbed session export (every bot's transcript plus a zip) is in [docs/grok-session-export/](docs/grok-session-export/).
 
 ## How to run it
 
