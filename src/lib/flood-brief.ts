@@ -68,8 +68,6 @@ export function buildFloodBrief(event: SignalEvent, eo?: EoAnalysis | null): Flo
     ]) {
       if (m[k] !== undefined && m[k] !== "") metrics[k] = m[k];
     }
-    const headline = str(m.nwsHeadline);
-    if (headline) sentences.push(`${headline.charAt(0)}${headline.slice(1).toLowerCase()}.`);
     if (event.summary) sentences.push(clipText(event.summary, FINDING_ALERT_TEXT_MAX));
   }
 

@@ -3,10 +3,10 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "vitest";
 
-import { alertToSignal, floodKind, parseVtec, type NwsAlertFeature } from "../src/lib/alerts";
-import { checkContact, isVerifiedContact } from "../src/lib/contacts";
-import { buildFloodBrief } from "../src/lib/flood-brief";
-import { geometryCentroid, pointInGeometry } from "../src/lib/geo";
+import { alertToSignal, floodKind, parseVtec, type NwsAlertFeature } from "@/lib/alerts";
+import { checkContact, isVerifiedContact } from "@/lib/contacts";
+import { buildFloodBrief } from "@/lib/flood-brief";
+import { geometryCentroid, pointInGeometry } from "@/lib/geo";
 import {
   NAMED_GAUGE_SIGNALS,
   gaugeToSignal,
@@ -15,9 +15,9 @@ import {
   parseNwpsGauge,
   warnedRiverPoints,
   type NwpsGaugeJson,
-} from "../src/lib/nwps";
-import { draftOutreach, matchProspects } from "../src/lib/outreach";
-import { clipText } from "../src/lib/text";
+} from "@/lib/nwps";
+import { draftOutreach, matchProspects } from "@/lib/outreach";
+import { clipText } from "@/lib/text";
 
 // Real NWPS / NWS payloads captured 2026-11-19 (trimmed), not invented values.
 const gauges = JSON.parse(

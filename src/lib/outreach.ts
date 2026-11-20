@@ -160,7 +160,11 @@ export function draftBroadcast(
     kind === "flood"
       ? `Were you affected by the ${placeHint} ${kind}?` +
         (stage ? ` Live stage ~${stage} ft.` : "") +
-        ` Our agents fused NOAA gauges + Sentinel-2 water masks into a verified brief ("${brief.headline.slice(0, 70)}").` +
+        (brief.metrics.sentinel_scene && stage != null
+          ? ` Our agents fused NOAA gauges + Sentinel-2 water masks into a verified brief ("${clipText(brief.headline, 70)}").`
+          : stage != null
+            ? ` Our agents turned live NOAA gauge data into a verified brief ("${clipText(brief.headline, 70)}").`
+            : ` Our agents turned the NWS alert into a verified brief ("${clipText(brief.headline, 70)}").`) +
         ` Property managers / businesses: reply DATA and we’ll send free analytics + imagery context.` +
         ` AI-assisted · @Terragent`
       : `Monitoring ${event.title}.` +

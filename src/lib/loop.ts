@@ -81,15 +81,19 @@ export async function runOpsLoop(
           lon: target.lon,
           pad_deg: 0.12,
         });
-        // Attach the same AOI mask to nearby disaster events so NWS alerts
-        // in the same basin also get optical fusion in top briefs.
+        // Attach the AOI result only to disaster events whose own location
+        // lies inside the analysed AOI bbox, so a brief never cites imagery
+        // that did not cover it.
+        const [xmin, ymin, xmax, ymax] = eo.bbox ?? [];
         for (const event of events) {
           if (event.market !== "disasters") continue;
-          const dlat = Math.abs(event.lat - target.lat);
-          const dlon = Math.abs(event.lon - target.lon);
-          if (event.id === target.id || (dlat < 0.6 && dlon < 0.6)) {
-            eoByEventId[event.id] = eo;
-          }
+          const inside =
+            [xmin, ymin, xmax, ymax].every((v) => typeof v === "number") &&
+            event.lon >= xmin &&
+            event.lon <= xmax &&
+            event.lat >= ymin &&
+            event.lat <= ymax;
+          if (event.id === target.id || inside) eoByEventId[event.id] = eo;
         }
         if (eo.ok && eo.recent) {
           run.steps.push(
